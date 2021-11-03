@@ -3,14 +3,14 @@ const app = express();
 const mongoose = require("mongoose");
 require("dotenv").config();
 app.use(express.json());
+
+//routes
 const webSetting = require("./src/api/WebsiteSetting");
+const authentication = require("./src/api/Authentication");
+
+//set path
 app.use("/webSetting", webSetting);
-const bodyParser = require("body-parser");
-app.use(
-  bodyParser.urlencoded({
-    extended: true,
-  })
-);
+app.use("/auth", authentication);
 
 //Data base connection
 var url = process.env.MONGO_URL;

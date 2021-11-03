@@ -3,6 +3,7 @@ const router = express.Router();
 const webSetting = require("../models/WebsiteSetting");
 const multer = require("multer");
 const path = require("path");
+const { tokengenerate, verifytoken } = require("../middlewear/auth");
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -19,7 +20,7 @@ const storage = multer.diskStorage({
 
 var upload = multer({ storage: storage });
 
-router.post("/", upload.array("file"), (req, res) => {
+router.post("/", verifytoken, upload.array("file"), (req, res) => {
   try {
     const { text, buttonText, link } = req.body;
     if (req.files.length > 0) {
@@ -30,12 +31,15 @@ router.post("/", upload.array("file"), (req, res) => {
         .status(200)
         .send({ message: "All input is required", success: false });
     } else {
+      const date = new Date();
+      req.body.created_at = date.toLocaleString();
       const web = new webSetting(req.body);
       web.save().then((item) => {
         res.status(200).send({
           message: "Data save into Database",
           data: item,
           success: true,
+          token: tokengenerate({ user: req.user }),
         });
       });
     }
@@ -44,12 +48,14 @@ router.post("/", upload.array("file"), (req, res) => {
     res.status(400).json({ message: err.message, success: false });
   }
 });
-router.put("/", (req, res) => {
+router.put("/", verifytoken, (req, res) => {
   try {
     const { id } = req.query;
     if (!id) {
       res.status(200).send({ message: "id is not specify", success: false });
     } else {
+      const date = new Date();
+      req.body.updated_at = date.toLocaleString();
       webSetting.updateOne({ _id: id }, req.body, (err, result) => {
         if (err) {
           res.status(200).send({ message: err.message, success: false });
@@ -58,6 +64,7 @@ router.put("/", (req, res) => {
             message: "Data updated Successfully",
             success: true,
             data: result,
+            token: tokengenerate({ user: req.user }),
           });
         }
       });
@@ -66,20 +73,21 @@ router.put("/", (req, res) => {
     res.status(400).json({ message: err.message, success: false });
   }
 });
-router.delete("/", (req, res) => {
+router.delete("/", verifytoken, (req, res) => {
   try {
     const { id } = req.query;
     if (!id) {
       res.status(200).send({ message: "id is not specify", success: false });
     } else {
       webSetting.deleteOne({ _id: id }, (err, result) => {
-        if (err) {
+        if (!result) {
           res.status(200).send({ message: err.message, success: false });
         } else {
           res.status(200).send({
             message: "Data deleted Successfully",
             success: true,
             data: result,
+            token: tokengenerate({ user: req.user }),
           });
         }
       });
@@ -88,30 +96,43 @@ router.delete("/", (req, res) => {
     res.status(400).json({ message: err.message, success: false });
   }
 });
-router.get("/", (req, res) => {
+router.get("/", verifytoken, (req, res) => {
   try {
-    const { search } = req.query;
-    if (search) {
-      webSetting.find({ text: /.*${search}.*/ }, (err, result) => {
-        if (err) {
-          res.status(200).send({ message: err.message, success: false });
-        } else {
-          res.status(200).send({
-            message: "Data get Successfully",
-            success: true,
-            data: result,
-          });
+    const { Search } = req.query;
+    if (Search) {
+      console.log(Search);
+
+      webSetting.find(
+        {
+          text: {
+            $regex: Search,
+            $options: "i",
+          },
+        },
+        (err, result) => {
+          if (!result) {
+            res.status(200).send({ message: err.message, success: false });
+          } else {
+            console.log(result);
+            res.status(200).send({
+              message: "Data get Successfully",
+              success: true,
+              data: result,
+              token: tokengenerate({ user: req.user }),
+            });
+          }
         }
-      });
+      );
     } else {
       webSetting.find({}, (err, result) => {
-        if (err) {
+        if (!result) {
           res.status(200).send({ message: err.message, success: false });
         } else {
           res.status(200).send({
             message: "Data get Successfully",
             success: true,
             data: result,
+            token: tokengenerate({ user: req.user }),
           });
         }
       });
