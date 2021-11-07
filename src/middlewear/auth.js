@@ -16,6 +16,7 @@ const verifytoken = (req, res, next) => {
   }
   try {
     token = token.split(" ")[1];
+
     const decoded = jwt.verify(token, process.env.TOKEN_KEY);
 
     req.user = decoded;

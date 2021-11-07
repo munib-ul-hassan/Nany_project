@@ -1,15 +1,14 @@
 const express = require("express");
 const router = express.Router();
-const webSetting = require("../models/WebsiteSetting");
+const banner = require("../models/Banner");
 const multer = require("multer");
 const path = require("path");
 const { tokengenerate, verifytoken } = require("../middlewear/auth");
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, "uploads/webSetting/");
+    cb(null, "uploads/banner/");
   },
-
   filename: function (req, file, cb) {
     cb(
       null,
@@ -22,19 +21,19 @@ var upload = multer({ storage: storage });
 
 router.post("/", verifytoken, upload.array("file"), (req, res) => {
   try {
-    const { text, buttonText, link } = req.body;
+    const { heading1, heading2, text1, text2 } = req.body;
     if (req.files.length > 0) {
-      req.body.image = req.files[0].path;
+      req.body.Bgimage = req.files[0].path;
     }
-    if (!(text && buttonText && link)) {
+    if (!(heading1 && heading2 && text1 && text2)) {
       res
         .status(200)
         .send({ message: "All input is required", success: false });
     } else {
       const date = new Date();
       req.body.created_at = date.toLocaleString();
-      const web = new webSetting(req.body);
-      web.save().then((item) => {
+      const Banner = new banner(req.body);
+      Banner.save().then((item) => {
         res.status(200).send({
           message: "Data save into Database",
           data: item,
@@ -55,7 +54,7 @@ router.put("/", verifytoken, (req, res) => {
     } else {
       const date = new Date();
       req.body.updated_at = date.toLocaleString();
-      webSetting.updateOne({ _id: id }, req.body, (err, result) => {
+      banner.updateOne({ _id: id }, req.body, (err, result) => {
         if (err) {
           res.status(200).send({ message: err.message, success: false });
         } else {
@@ -78,7 +77,7 @@ router.delete("/", verifytoken, (req, res) => {
     if (!id) {
       res.status(200).send({ message: "id is not specify", success: false });
     } else {
-      webSetting.deleteOne({ _id: id }, (err, result) => {
+      banner.deleteOne({ _id: id }, (err, result) => {
         if (!result) {
           res.status(200).send({ message: err.message, success: false });
         } else {
@@ -99,9 +98,9 @@ router.get("/", verifytoken, (req, res) => {
   try {
     const { Search } = req.query;
     if (Search) {
-      webSetting.find(
+      banner.find(
         {
-          text: {
+          heading1: {
             $regex: Search,
             $options: "i",
           },
@@ -120,7 +119,7 @@ router.get("/", verifytoken, (req, res) => {
         }
       );
     } else {
-      webSetting.find({}, (err, result) => {
+      banner.find({}, (err, result) => {
         if (!result) {
           res.status(200).send({ message: err.message, success: false });
         } else {

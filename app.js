@@ -7,10 +7,18 @@ app.use(express.json());
 //routes
 const webSetting = require("./src/api/WebsiteSetting");
 const authentication = require("./src/api/Authentication");
+const banner = require("./src/api/Banner");
+const about = require("./src/api/AboutSection");
+const Service = require("./src/api/Service");
+const Price = require("./src/api/Pricing");
 
 //set path
 app.use("/webSetting", webSetting);
 app.use("/auth", authentication);
+app.use("/banner", banner);
+app.use("/about", about);
+app.use("/Service", Service);
+app.use("/Price", Price);
 
 //Data base connection
 var url = process.env.MONGO_URL;
