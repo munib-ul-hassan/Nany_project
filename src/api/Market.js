@@ -1,35 +1,55 @@
 const express = require("express");
 const router = express.Router();
-const price = require("../models/Pricing");
+const market = require("../models/Market");
 
+const multer = require("multer");
+const path = require("path");
 const { tokengenerate, verifytoken } = require("../middlewear/auth");
 
-router.post("/", verifytoken, (req, res) => {
-  try {
-    const { text, package } = req.body;
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "uploads/market/");
+  },
+  filename: function (req, file, cb) {
+    cb(
+      null,
+      file.fieldname + "-" + Date.now() + path.extname(file.originalname)
+    );
+  },
+});
 
-    if (!(text && package)) {
+var upload = multer({ storage: storage });
+
+router.post("/", upload.array("file"), verifytoken, (req, res) => {
+  try {
+    req.body.content = JSON.parse(req.body.content);
+    const { text, content } = req.body;
+
+    console.log(req.body.content);
+    if (req.files.length > 0) {
+      req.body.image = req.files[0].path;
+    }
+    // console.log(req.files);
+    if (!(text && content)) {
       res
         .status(200)
         .send({ message: "All input is required", success: false });
     } else {
-      content = [];
+      data = [];
 
-      for (var i = 0; i < package.length; i++) {
-        content.push({
-          name: package[i].name || "",
-          price: package[i].price || 0,
-          type: package[i].type || "",
-          detail: package[i].detail || "",
+      for (var i = 0; i < content.length; i++) {
+        data.push({
+          icon: req.files[i + 1] ? req.files[i + 1].path : " ",
+          text: content[i].text || "",
+          link: content[i].link || "",
         });
       }
-
-      req.body.package = content;
-
+      req.body.M_content = data;
       const date = new Date();
       req.body.created_at = date.toLocaleString();
-      const Price = new price(req.body);
-      Price.save().then((item) => {
+      console.log(req.body);
+      const Market = new market(req.body);
+      Market.save().then((item) => {
         res.status(200).send({
           message: "Data save into Database",
           data: item,
@@ -42,16 +62,31 @@ router.post("/", verifytoken, (req, res) => {
     res.status(400).json({ message: err.message, success: false });
   }
 });
-router.put("/", verifytoken, (req, res) => {
+router.put("/", upload.array("file"), verifytoken, (req, res) => {
   try {
     const { id } = req.query;
+    if (req.files) {
+      req.body.image = req.files[0].path;
+    }
+    if (req.body.M_content) {
+      var data = [];
+      for (var i = 0; i < req.body.M_content.length; i++) {
+        console.log(i);
+        data.push({
+          icon: req.files ? req.files[i + 1].path : " ",
+          text: req.body.M_content[i].text || "",
+          link: req.body.M_content[i].link || "",
+        });
+      }
+      req.body.M_content = data;
+    }
     if (!id) {
       res.status(200).send({ message: "id is not specify", success: false });
     } else {
       const date = new Date();
       req.body.updated_at = date.toLocaleString();
-
-      price.updateOne({ _id: id }, req.body, (err, result) => {
+      console.log(req.body);
+      market.updateOne({ _id: id }, req.body, (err, result) => {
         if (err) {
           res.status(200).send({ message: err.message, success: false });
         } else {
@@ -74,7 +109,7 @@ router.delete("/", verifytoken, (req, res) => {
     if (!id) {
       res.status(200).send({ message: "id is not specify", success: false });
     } else {
-      price.deleteOne({ _id: id }, (err, result) => {
+      market.deleteOne({ _id: id }, (err, result) => {
         if (!result) {
           res.status(200).send({ message: err.message, success: false });
         } else {
@@ -95,7 +130,7 @@ router.get("/", verifytoken, (req, res) => {
   try {
     const { Search } = req.query;
     if (Search) {
-      price.find(
+      market.find(
         {
           text: {
             $regex: Search,
@@ -116,7 +151,7 @@ router.get("/", verifytoken, (req, res) => {
         }
       );
     } else {
-      price.find({}, (err, result) => {
+      market.find({}, (err, result) => {
         if (!result) {
           res.status(200).send({ message: err.message, success: false });
         } else {

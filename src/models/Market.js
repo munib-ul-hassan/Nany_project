@@ -3,11 +3,7 @@ const market = mongoose.Schema({
   text: String,
   image: String,
 
-  content: {
-    icon: String,
-    text: String,
-    link: String,
-  },
+  M_content: [],
   created_at: String,
   updated_at: String,
 });

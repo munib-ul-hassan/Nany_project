@@ -1,35 +1,50 @@
 const express = require("express");
 const router = express.Router();
-const price = require("../models/Pricing");
-
+const HIwork = require("../models/HowItWorks");
+const multer = require("multer");
+const path = require("path");
 const { tokengenerate, verifytoken } = require("../middlewear/auth");
 
-router.post("/", verifytoken, (req, res) => {
-  try {
-    const { text, package } = req.body;
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "uploads/HIwork/");
+  },
+  filename: function (req, file, cb) {
+    cb(
+      null,
+      file.fieldname + "-" + Date.now() + path.extname(file.originalname)
+    );
+  },
+});
 
-    if (!(text && package)) {
+var upload = multer({ storage: storage });
+
+router.post("/", verifytoken, upload.array("file"), (req, res) => {
+  try {
+    req.body.works = JSON.parse(req.body.works);
+
+    const { text, works } = req.body;
+
+    content = [];
+
+    for (var i = 0; i < works.length; i++) {
+      content.push({
+        text: works[i].text || " ",
+        icon: req.files[i] ? req.files[i].path : " ",
+      });
+    }
+
+    req.body.works = content;
+
+    if (!(text && works)) {
       res
         .status(200)
         .send({ message: "All input is required", success: false });
     } else {
-      content = [];
-
-      for (var i = 0; i < package.length; i++) {
-        content.push({
-          name: package[i].name || "",
-          price: package[i].price || 0,
-          type: package[i].type || "",
-          detail: package[i].detail || "",
-        });
-      }
-
-      req.body.package = content;
-
       const date = new Date();
       req.body.created_at = date.toLocaleString();
-      const Price = new price(req.body);
-      Price.save().then((item) => {
+      const hiwork = new HIwork(req.body);
+      hiwork.save().then((item) => {
         res.status(200).send({
           message: "Data save into Database",
           data: item,
@@ -44,14 +59,17 @@ router.post("/", verifytoken, (req, res) => {
 });
 router.put("/", verifytoken, (req, res) => {
   try {
+    console.log(req.body);
+    console.log(req.query);
+
     const { id } = req.query;
     if (!id) {
       res.status(200).send({ message: "id is not specify", success: false });
     } else {
       const date = new Date();
       req.body.updated_at = date.toLocaleString();
-
-      price.updateOne({ _id: id }, req.body, (err, result) => {
+      console.log(req.body);
+      HIwork.updateOne({ _id: id }, req.body, (err, result) => {
         if (err) {
           res.status(200).send({ message: err.message, success: false });
         } else {
@@ -74,7 +92,7 @@ router.delete("/", verifytoken, (req, res) => {
     if (!id) {
       res.status(200).send({ message: "id is not specify", success: false });
     } else {
-      price.deleteOne({ _id: id }, (err, result) => {
+      HIwork.deleteOne({ _id: id }, (err, result) => {
         if (!result) {
           res.status(200).send({ message: err.message, success: false });
         } else {
@@ -95,7 +113,7 @@ router.get("/", verifytoken, (req, res) => {
   try {
     const { Search } = req.query;
     if (Search) {
-      price.find(
+      HIwork.find(
         {
           text: {
             $regex: Search,
@@ -116,7 +134,7 @@ router.get("/", verifytoken, (req, res) => {
         }
       );
     } else {
-      price.find({}, (err, result) => {
+      HIwork.find({}, (err, result) => {
         if (!result) {
           res.status(200).send({ message: err.message, success: false });
         } else {
