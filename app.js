@@ -13,6 +13,11 @@ const Service = require("./src/api/Service");
 const price = require("./src/api/Pricing");
 const Works = require("./src/api/Howitworks");
 const market = require("./src/api/Market");
+const faq = require("./src/api/faq");
+const contact = require("./src/api/Contact");
+const category = require("./src/api/Category");
+const product = require("./src/api/Product");
+const order = require("./src/api/order");
 
 //set path
 app.use("/webSetting", webSetting);
@@ -23,6 +28,11 @@ app.use("/Service", Service);
 app.use("/Price", price);
 app.use("/Work", Works);
 app.use("/market", market);
+app.use("/faq", faq);
+app.use("/contact", contact);
+app.use("/category", category);
+app.use("/product", product);
+app.use("/order", order);
 
 //Data base connection
 var url = process.env.MONGO_URL;

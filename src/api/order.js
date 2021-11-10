@@ -1,51 +1,48 @@
 const express = require("express");
 const router = express.Router();
-const HIwork = require("../models/HowItWorks");
-const multer = require("multer");
-const path = require("path");
 
+const order = require("../models/order");
 const { tokengenerate, verifytoken } = require("../middlewear/auth");
 
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, "uploads/HIwork/");
-  },
-  filename: function (req, file, cb) {
-    cb(
-      null,
-      file.fieldname + "-" + Date.now() + path.extname(file.originalname)
-    );
-  },
-});
-
-var upload = multer({ storage: storage });
-
-router.post("/", verifytoken, upload.array("file"), (req, res) => {
+router.post("/", verifytoken, (req, res) => {
   try {
-    req.body.works = JSON.parse(req.body.works);
+    const {
+      first_name,
+      last_name,
+      email,
+      mobile,
+      address,
+      city,
+      country,
+      postal_code,
+      quantity,
 
-    const { text, works } = req.body;
-
-    content = [];
-
-    for (var i = 0; i < works.length; i++) {
-      content.push({
-        text: works[i].text || " ",
-        icon: req.files[i] ? req.files[i].path : " ",
-      });
-    }
-
-    req.body.works = content;
-
-    if (!(text && works)) {
+      order_note,
+    } = req.body;
+    console.log(req.body);
+    if (
+      !(
+        first_name &&
+        last_name &&
+        email &&
+        mobile &&
+        address &&
+        city &&
+        country &&
+        postal_code &&
+        quantity &&
+        order_note
+      )
+    ) {
       res
         .status(200)
         .send({ message: "All input is required", success: false });
     } else {
       const date = new Date();
       req.body.created_at = date.toLocaleString();
-      const hiwork = new HIwork(req.body);
-      hiwork.save().then((item) => {
+
+      const Order = new order(req.body);
+      Order.save().then((item) => {
         res.status(200).send({
           message: "Data save into Database",
           data: item,
@@ -61,13 +58,14 @@ router.post("/", verifytoken, upload.array("file"), (req, res) => {
 router.put("/", verifytoken, (req, res) => {
   try {
     const { id } = req.query;
+
     if (!id) {
       res.status(200).send({ message: "id is not specify", success: false });
     } else {
       const date = new Date();
       req.body.updated_at = date.toLocaleString();
 
-      HIwork.updateOne({ _id: id }, req.body, (err, result) => {
+      order.updateOne({ _id: id }, req.body, (err, result) => {
         if (err) {
           res.status(200).send({ message: err.message, success: false });
         } else {
@@ -90,7 +88,7 @@ router.delete("/", verifytoken, (req, res) => {
     if (!id) {
       res.status(200).send({ message: "id is not specify", success: false });
     } else {
-      HIwork.deleteOne({ _id: id }, (err, result) => {
+      order.deleteOne({ _id: id }, (err, result) => {
         if (!result) {
           res.status(200).send({ message: err.message, success: false });
         } else {
@@ -111,9 +109,9 @@ router.get("/", verifytoken, (req, res) => {
   try {
     const { Search } = req.query;
     if (Search) {
-      HIwork.find(
+      order.find(
         {
-          text: {
+          email: {
             $regex: Search,
             $options: "i",
           },
@@ -132,7 +130,7 @@ router.get("/", verifytoken, (req, res) => {
         }
       );
     } else {
-      HIwork.find({}, (err, result) => {
+      order.find({}, (err, result) => {
         if (!result) {
           res.status(200).send({ message: err.message, success: false });
         } else {

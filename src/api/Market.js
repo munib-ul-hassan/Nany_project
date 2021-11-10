@@ -25,11 +25,10 @@ router.post("/", upload.array("file"), verifytoken, (req, res) => {
     req.body.content = JSON.parse(req.body.content);
     const { text, content } = req.body;
 
-    console.log(req.body.content);
     if (req.files.length > 0) {
       req.body.image = req.files[0].path;
     }
-    // console.log(req.files);
+
     if (!(text && content)) {
       res
         .status(200)
@@ -47,7 +46,7 @@ router.post("/", upload.array("file"), verifytoken, (req, res) => {
       req.body.M_content = data;
       const date = new Date();
       req.body.created_at = date.toLocaleString();
-      console.log(req.body);
+
       const Market = new market(req.body);
       Market.save().then((item) => {
         res.status(200).send({
@@ -71,7 +70,6 @@ router.put("/", upload.array("file"), verifytoken, (req, res) => {
     if (req.body.M_content) {
       var data = [];
       for (var i = 0; i < req.body.M_content.length; i++) {
-        console.log(i);
         data.push({
           icon: req.files ? req.files[i + 1].path : " ",
           text: req.body.M_content[i].text || "",
@@ -85,7 +83,7 @@ router.put("/", upload.array("file"), verifytoken, (req, res) => {
     } else {
       const date = new Date();
       req.body.updated_at = date.toLocaleString();
-      console.log(req.body);
+
       market.updateOne({ _id: id }, req.body, (err, result) => {
         if (err) {
           res.status(200).send({ message: err.message, success: false });
