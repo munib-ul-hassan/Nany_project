@@ -2,9 +2,9 @@ const express = require("express");
 const router = express.Router();
 const price = require("../models/Pricing");
 
-const { tokengenerate, verifytoken } = require("../middlewear/auth");
+const { tokengenerate } = require("../middleware/auth");
 
-router.post("/", verifytoken, (req, res) => {
+router.post("/", (req, res) => {
   try {
     const { text, package } = req.body;
 
@@ -42,7 +42,7 @@ router.post("/", verifytoken, (req, res) => {
     res.status(400).json({ message: err.message, success: false });
   }
 });
-router.put("/", verifytoken, (req, res) => {
+router.put("/", (req, res) => {
   try {
     const { id } = req.query;
     if (!id) {
@@ -68,7 +68,7 @@ router.put("/", verifytoken, (req, res) => {
     res.status(400).json({ message: err.message, success: false });
   }
 });
-router.delete("/", verifytoken, (req, res) => {
+router.delete("/", (req, res) => {
   try {
     const { id } = req.query;
     if (!id) {
@@ -91,7 +91,7 @@ router.delete("/", verifytoken, (req, res) => {
     res.status(400).json({ message: err.message, success: false });
   }
 });
-router.get("/", verifytoken, (req, res) => {
+router.get("/", (req, res) => {
   try {
     const { Search } = req.query;
     if (Search) {

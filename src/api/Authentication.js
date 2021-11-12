@@ -5,7 +5,7 @@ const multer = require("multer");
 const path = require("path");
 var bcrypt = require("bcryptjs");
 const nodemailer = require("nodemailer");
-const { tokengenerate, verifytoken } = require("../middlewear/auth");
+const { tokengenerate } = require("../middleware/auth");
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -34,7 +34,7 @@ router.post("/register", upload.array("file"), async (req, res) => {
     } else if (!re.test(email)) {
       res.status(422).send({ message: "invlaid Email", success: false });
     } else if (req.files.length > 0) {
-      req.body.file = req.files[0].path;
+      req.body.file = req.files[0] ? req.files[0].path : "";
     } else {
       authentication.findOne({ email: email }, (err, data) => {
         if (data) {
@@ -149,7 +149,7 @@ router.post("/otpsend", async (req, res) => {
     res.status(400).send({ message: err.message, success: false });
   }
 });
-router.post("/updateprofile", verifytoken, (req, res) => {
+router.post("/updateprofile", (req, res) => {
   try {
     const date = new Date();
     req.body.updated_at = date.toLocaleString();

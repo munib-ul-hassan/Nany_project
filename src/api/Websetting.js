@@ -1,13 +1,13 @@
 const express = require("express");
 const router = express.Router();
-const webSetting = require("../models/WebsiteSetting");
+const Websetting = require("../models/Websetting");
 const multer = require("multer");
 const path = require("path");
-const { tokengenerate, verifytoken } = require("../middlewear/auth");
+const { tokengenerate } = require("../middleware/auth");
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, "uploads/webSetting/");
+    cb(null, "uploads/Websetting/");
   },
 
   filename: function (req, file, cb) {
@@ -20,20 +20,46 @@ const storage = multer.diskStorage({
 
 var upload = multer({ storage: storage });
 
-router.post("/", verifytoken, upload.array("file"), (req, res) => {
+router.post("/", upload.array("file"), (req, res) => {
   try {
-    const { text, buttonText, link } = req.body;
-    if (req.files.length > 0) {
-      req.body.image = req.files[0].path;
+    const {
+      W_name,
+      W_Meta_Description,
+      W_Meta,
+      W_About,
+      Social_links,
+      Address,
+      Phone,
+      Email,
+    } = req.body;
+    var re = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+    if (!re.test(Email)) {
+      res.status(422).send({ message: "invlaid Email", success: false });
     }
-    if (!(text && buttonText && link)) {
+
+    if (req.files.length > 0) {
+      req.body.H_Logo = req.files[0] ? req.files[0].path : "";
+      req.body.F_Logo = req.files[1] ? req.files[1].path : "";
+    }
+    if (
+      !(
+        W_name &&
+        W_Meta_Description &&
+        W_Meta &&
+        W_About &&
+        Social_links &&
+        Address &&
+        Phone &&
+        Email
+      )
+    ) {
       res
         .status(200)
         .send({ message: "All input is required", success: false });
     } else {
       const date = new Date();
       req.body.created_at = date.toLocaleString();
-      const web = new webSetting(req.body);
+      const web = new Websetting(req.body);
       web.save().then((item) => {
         res.status(200).send({
           message: "Data save into Database",
@@ -47,15 +73,22 @@ router.post("/", verifytoken, upload.array("file"), (req, res) => {
     res.status(400).json({ message: err.message, success: false });
   }
 });
-router.put("/", verifytoken, (req, res) => {
+
+router.put("/", (req, res) => {
   try {
     const { id } = req.query;
     if (!id) {
       res.status(200).send({ message: "id is not specify", success: false });
     } else {
       const date = new Date();
+      if (req.body.Email) {
+      }
+      var re = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+      if (!re.test(req.body.Email)) {
+        res.status(422).send({ message: "invlaid Email", success: false });
+      }
       req.body.updated_at = date.toLocaleString();
-      webSetting.updateOne({ _id: id }, req.body, (err, result) => {
+      Websetting.updateOne({ _id: id }, req.body, (err, result) => {
         if (err) {
           res.status(200).send({ message: err.message, success: false });
         } else {
@@ -72,13 +105,13 @@ router.put("/", verifytoken, (req, res) => {
     res.status(400).json({ message: err.message, success: false });
   }
 });
-router.delete("/", verifytoken, (req, res) => {
+router.delete("/", (req, res) => {
   try {
     const { id } = req.query;
     if (!id) {
       res.status(200).send({ message: "id is not specify", success: false });
     } else {
-      webSetting.deleteOne({ _id: id }, (err, result) => {
+      Websetting.deleteOne({ _id: id }, (err, result) => {
         if (!result) {
           res.status(200).send({ message: err.message, success: false });
         } else {
@@ -95,13 +128,13 @@ router.delete("/", verifytoken, (req, res) => {
     res.status(400).json({ message: err.message, success: false });
   }
 });
-router.get("/", verifytoken, (req, res) => {
+router.get("/", (req, res) => {
   try {
     const { Search } = req.query;
     if (Search) {
-      webSetting.find(
+      Websetting.find(
         {
-          text: {
+          Email: {
             $regex: Search,
             $options: "i",
           },
@@ -120,7 +153,7 @@ router.get("/", verifytoken, (req, res) => {
         }
       );
     } else {
-      webSetting.find({}, (err, result) => {
+      Websetting.find({}, (err, result) => {
         if (!result) {
           res.status(200).send({ message: err.message, success: false });
         } else {

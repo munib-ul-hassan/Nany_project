@@ -4,7 +4,7 @@ const HIwork = require("../models/HowItWorks");
 const multer = require("multer");
 const path = require("path");
 
-const { tokengenerate, verifytoken } = require("../middlewear/auth");
+const { tokengenerate } = require("../middleware/auth");
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -20,7 +20,7 @@ const storage = multer.diskStorage({
 
 var upload = multer({ storage: storage });
 
-router.post("/", verifytoken, upload.array("file"), (req, res) => {
+router.post("/", upload.array("file"), (req, res) => {
   try {
     req.body.works = JSON.parse(req.body.works);
 
@@ -58,7 +58,7 @@ router.post("/", verifytoken, upload.array("file"), (req, res) => {
     res.status(400).json({ message: err.message, success: false });
   }
 });
-router.put("/", verifytoken, (req, res) => {
+router.put("/", (req, res) => {
   try {
     const { id } = req.query;
     if (!id) {
@@ -84,7 +84,7 @@ router.put("/", verifytoken, (req, res) => {
     res.status(400).json({ message: err.message, success: false });
   }
 });
-router.delete("/", verifytoken, (req, res) => {
+router.delete("/", (req, res) => {
   try {
     const { id } = req.query;
     if (!id) {
@@ -107,7 +107,7 @@ router.delete("/", verifytoken, (req, res) => {
     res.status(400).json({ message: err.message, success: false });
   }
 });
-router.get("/", verifytoken, (req, res) => {
+router.get("/", (req, res) => {
   try {
     const { Search } = req.query;
     if (Search) {

@@ -5,7 +5,7 @@ require("dotenv").config();
 app.use(express.json());
 
 //routes
-const webSetting = require("./src/api/WebsiteSetting");
+const topheader = require("./src/api/Topheader");
 const authentication = require("./src/api/Authentication");
 const banner = require("./src/api/Banner");
 const about = require("./src/api/AboutSection");
@@ -17,22 +17,25 @@ const faq = require("./src/api/faq");
 const contact = require("./src/api/Contact");
 const category = require("./src/api/Category");
 const product = require("./src/api/Product");
-const order = require("./src/api/order");
+const order = require("./src/api/Order");
+const Websetting = require("./src/api/Websetting");
+const { verifytoken } = require("./src/middleware/auth");
 
 //set path
-app.use("/webSetting", webSetting);
+app.use("/topheader", verifytoken, topheader);
 app.use("/auth", authentication);
-app.use("/banner", banner);
-app.use("/about", about);
-app.use("/Service", Service);
-app.use("/Price", price);
-app.use("/Work", Works);
-app.use("/market", market);
-app.use("/faq", faq);
-app.use("/contact", contact);
-app.use("/category", category);
-app.use("/product", product);
-app.use("/order", order);
+app.use("/banner", verifytoken, banner);
+app.use("/about", verifytoken, about);
+app.use("/Service", verifytoken, Service);
+app.use("/Price", verifytoken, price);
+app.use("/Work", verifytoken, Works);
+app.use("/market", verifytoken, market);
+app.use("/faq", verifytoken, faq);
+app.use("/contact", verifytoken, contact);
+app.use("/category", verifytoken, category);
+app.use("/product", verifytoken, product);
+app.use("/order", verifytoken, order);
+app.use("/Websetting", verifytoken, Websetting);
 
 //Data base connection
 var url = process.env.MONGO_URL;

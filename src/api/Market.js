@@ -4,7 +4,7 @@ const market = require("../models/Market");
 
 const multer = require("multer");
 const path = require("path");
-const { tokengenerate, verifytoken } = require("../middlewear/auth");
+const { tokengenerate } = require("../middleware/auth");
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -20,13 +20,13 @@ const storage = multer.diskStorage({
 
 var upload = multer({ storage: storage });
 
-router.post("/", upload.array("file"), verifytoken, (req, res) => {
+router.post("/", upload.array("file"), (req, res) => {
   try {
     req.body.content = JSON.parse(req.body.content);
     const { text, content } = req.body;
 
     if (req.files.length > 0) {
-      req.body.image = req.files[0].path;
+      req.body.image = req.files[0] ? req.files[0].path : "";
     }
 
     if (!(text && content)) {
@@ -61,14 +61,12 @@ router.post("/", upload.array("file"), verifytoken, (req, res) => {
     res.status(400).json({ message: err.message, success: false });
   }
 });
-router.put("/", upload.array("file"), verifytoken, (req, res) => {
+router.put("/", upload.array("file"), (req, res) => {
   try {
     const { id } = req.query;
     if (req.files) {
-      req.body.image = req.files[0].path;
-    }
-    if (req.body.M_content) {
-      var data = [];
+      req.body.image = req.files[0] ? req.files[0].path : "";
+      if (req.body.M_content) var data = [];
       for (var i = 0; i < req.body.M_content.length; i++) {
         data.push({
           icon: req.files ? req.files[i + 1].path : " ",
@@ -101,7 +99,7 @@ router.put("/", upload.array("file"), verifytoken, (req, res) => {
     res.status(400).json({ message: err.message, success: false });
   }
 });
-router.delete("/", verifytoken, (req, res) => {
+router.delete("/", (req, res) => {
   try {
     const { id } = req.query;
     if (!id) {
@@ -124,7 +122,7 @@ router.delete("/", verifytoken, (req, res) => {
     res.status(400).json({ message: err.message, success: false });
   }
 });
-router.get("/", verifytoken, (req, res) => {
+router.get("/", (req, res) => {
   try {
     const { Search } = req.query;
     if (Search) {

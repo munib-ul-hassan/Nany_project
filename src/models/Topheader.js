@@ -1,11 +1,11 @@
 const mongoose = require("mongoose");
-const webSetting = mongoose.Schema({
+const topheader = mongoose.Schema({
   image: String,
   text: String,
-  buttonText: String,
+  button_text: String,
   link: String,
   created_at: String,
   updated_at: String,
 });
 
-module.exports = mongoose.model("webSetting", webSetting);
+module.exports = mongoose.model("topheader", topheader);

@@ -4,7 +4,7 @@ const faq = require("../models/Faq");
 
 const multer = require("multer");
 const path = require("path");
-const { tokengenerate, verifytoken } = require("../middlewear/auth");
+const { tokengenerate } = require("../middleware/auth");
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -20,7 +20,7 @@ const storage = multer.diskStorage({
 
 var upload = multer({ storage: storage });
 
-router.post("/", upload.array("file"), verifytoken, (req, res) => {
+router.post("/", upload.array("file"), (req, res) => {
   try {
     const { question, answer } = req.body;
 
@@ -50,7 +50,7 @@ router.post("/", upload.array("file"), verifytoken, (req, res) => {
     res.status(400).json({ message: err.message, success: false });
   }
 });
-router.put("/", upload.array("file"), verifytoken, (req, res) => {
+router.put("/", upload.array("file"), (req, res) => {
   try {
     const { id } = req.query;
     if (req.files) {
@@ -80,7 +80,7 @@ router.put("/", upload.array("file"), verifytoken, (req, res) => {
     res.status(400).json({ message: err.message, success: false });
   }
 });
-router.delete("/", verifytoken, (req, res) => {
+router.delete("/", (req, res) => {
   try {
     const { id } = req.query;
     if (!id) {
@@ -103,7 +103,7 @@ router.delete("/", verifytoken, (req, res) => {
     res.status(400).json({ message: err.message, success: false });
   }
 });
-router.get("/", verifytoken, (req, res) => {
+router.get("/", (req, res) => {
   try {
     faq.find({}, (err, result) => {
       if (!result) {

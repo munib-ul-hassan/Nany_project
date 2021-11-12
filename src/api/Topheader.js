@@ -1,48 +1,42 @@
 const express = require("express");
 const router = express.Router();
-
-const order = require("../models/Order");
+const topheader = require("../models/topheader");
+const multer = require("multer");
+const path = require("path");
 const { tokengenerate } = require("../middleware/auth");
 
-router.post("/", (req, res) => {
-  try {
-    const {
-      first_name,
-      last_name,
-      email,
-      mobile,
-      address,
-      city,
-      country,
-      postal_code,
-      quantity,
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "uploads/topheader/");
+  },
 
-      order_note,
-    } = req.body;
+  filename: function (req, file, cb) {
+    cb(
+      null,
+      file.fieldname + "-" + Date.now() + path.extname(file.originalname)
+    );
+  },
+});
+
+var upload = multer({ storage: storage });
+
+router.post("/", upload.array("file"), (req, res) => {
+  try {
     console.log(req.body);
-    if (
-      !(
-        first_name &&
-        last_name &&
-        email &&
-        mobile &&
-        address &&
-        city &&
-        country &&
-        postal_code &&
-        quantity &&
-        order_note
-      )
-    ) {
+
+    const { text, button_text, link } = req.body;
+    if (req.files.length > 0) {
+      req.body.image = req.files[0].path;
+    }
+    if (!(text && button_text && link)) {
       res
         .status(200)
         .send({ message: "All input is required", success: false });
     } else {
       const date = new Date();
       req.body.created_at = date.toLocaleString();
-
-      const Order = new order(req.body);
-      Order.save().then((item) => {
+      const web = new topheader(req.body);
+      web.save().then((item) => {
         res.status(200).send({
           message: "Data save into Database",
           data: item,
@@ -58,14 +52,12 @@ router.post("/", (req, res) => {
 router.put("/", (req, res) => {
   try {
     const { id } = req.query;
-
     if (!id) {
       res.status(200).send({ message: "id is not specify", success: false });
     } else {
       const date = new Date();
       req.body.updated_at = date.toLocaleString();
-
-      order.updateOne({ _id: id }, req.body, (err, result) => {
+      topheader.updateOne({ _id: id }, req.body, (err, result) => {
         if (err) {
           res.status(200).send({ message: err.message, success: false });
         } else {
@@ -88,7 +80,7 @@ router.delete("/", (req, res) => {
     if (!id) {
       res.status(200).send({ message: "id is not specify", success: false });
     } else {
-      order.deleteOne({ _id: id }, (err, result) => {
+      topheader.deleteOne({ _id: id }, (err, result) => {
         if (!result) {
           res.status(200).send({ message: err.message, success: false });
         } else {
@@ -109,9 +101,9 @@ router.get("/", (req, res) => {
   try {
     const { Search } = req.query;
     if (Search) {
-      order.find(
+      topheader.find(
         {
-          email: {
+          text: {
             $regex: Search,
             $options: "i",
           },
@@ -130,7 +122,7 @@ router.get("/", (req, res) => {
         }
       );
     } else {
-      order.find({}, (err, result) => {
+      topheader.find({}, (err, result) => {
         if (!result) {
           res.status(200).send({ message: err.message, success: false });
         } else {
