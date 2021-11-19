@@ -3,7 +3,7 @@ const router = express.Router();
 const Websetting = require("../models/Websetting");
 const multer = require("multer");
 const path = require("path");
-const { tokengenerate } = require("../middleware/auth");
+const fs = require("fs");
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -57,15 +57,12 @@ router.post("/", upload.array("file"), (req, res) => {
         .status(200)
         .send({ message: "All input is required", success: false });
     } else {
-      const date = new Date();
-      req.body.created_at = date.toLocaleString();
       const web = new Websetting(req.body);
       web.save().then((item) => {
         res.status(200).send({
           message: "Data save into Database",
           data: item,
           success: true,
-          token: tokengenerate({ user: req.user }),
         });
       });
     }
@@ -74,20 +71,19 @@ router.post("/", upload.array("file"), (req, res) => {
   }
 });
 
-router.put("/", (req, res) => {
+router.put("/:id", (req, res) => {
   try {
-    const { id } = req.query;
+    const { id } = req.params;
     if (!id) {
       res.status(200).send({ message: "id is not specify", success: false });
     } else {
-      const date = new Date();
       if (req.body.Email) {
       }
       var re = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
       if (!re.test(req.body.Email)) {
         res.status(422).send({ message: "invlaid Email", success: false });
       }
-      req.body.updated_at = date.toLocaleString();
+
       Websetting.updateOne({ _id: id }, req.body, (err, result) => {
         if (err) {
           res.status(200).send({ message: err.message, success: false });
@@ -96,7 +92,6 @@ router.put("/", (req, res) => {
             message: "Data updated Successfully",
             success: true,
             data: result,
-            token: tokengenerate({ user: req.user }),
           });
         }
       });
@@ -111,16 +106,23 @@ router.delete("/", (req, res) => {
     if (!id) {
       res.status(200).send({ message: "id is not specify", success: false });
     } else {
-      Websetting.deleteOne({ _id: id }, (err, result) => {
-        if (!result) {
-          res.status(200).send({ message: err.message, success: false });
-        } else {
-          res.status(200).send({
-            message: "Data deleted Successfully",
-            success: true,
-            data: result,
-            token: tokengenerate({ user: req.user }),
+      Websetting.findOne({ _id: id }, (err, result) => {
+        if (result) {
+          fs.unlink(result.H_Logo, () => {});
+          fs.unlink(result.F_Logo, () => {});
+          Websetting.deleteOne({ _id: id }, (err, result) => {
+            if (!result) {
+              res.status(200).send({ message: err.message, success: false });
+            } else {
+              res.status(200).send({
+                message: "Data deleted Successfully",
+                success: true,
+                data: result,
+              });
+            }
           });
+        } else {
+          res.status(200).send({ message: err.message, success: false });
         }
       });
     }
@@ -147,7 +149,6 @@ router.get("/", (req, res) => {
               message: "Data get Successfully",
               success: true,
               data: result,
-              token: tokengenerate({ user: req.user }),
             });
           }
         }
@@ -161,7 +162,6 @@ router.get("/", (req, res) => {
             message: "Data get Successfully",
             success: true,
             data: result,
-            token: tokengenerate({ user: req.user }),
           });
         }
       });

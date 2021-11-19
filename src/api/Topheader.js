@@ -3,7 +3,7 @@ const router = express.Router();
 const topheader = require("../models/topheader");
 const multer = require("multer");
 const path = require("path");
-const { tokengenerate } = require("../middleware/auth");
+const fs = require("fs");
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -22,8 +22,7 @@ var upload = multer({ storage: storage });
 
 router.post("/", upload.array("file"), (req, res) => {
   try {
-    console.log(req.body);
-
+    console.log(req.files);
     const { text, button_text, link } = req.body;
     if (req.files.length > 0) {
       req.body.image = req.files[0].path;
@@ -33,15 +32,12 @@ router.post("/", upload.array("file"), (req, res) => {
         .status(200)
         .send({ message: "All input is required", success: false });
     } else {
-      const date = new Date();
-      req.body.created_at = date.toLocaleString();
       const web = new topheader(req.body);
       web.save().then((item) => {
         res.status(200).send({
           message: "Data save into Database",
           data: item,
           success: true,
-          token: tokengenerate({ user: req.user }),
         });
       });
     }
@@ -49,14 +45,12 @@ router.post("/", upload.array("file"), (req, res) => {
     res.status(400).json({ message: err.message, success: false });
   }
 });
-router.put("/", (req, res) => {
+router.put("/:id", (req, res) => {
   try {
-    const { id } = req.query;
+    const { id } = req.params;
     if (!id) {
       res.status(200).send({ message: "id is not specify", success: false });
     } else {
-      const date = new Date();
-      req.body.updated_at = date.toLocaleString();
       topheader.updateOne({ _id: id }, req.body, (err, result) => {
         if (err) {
           res.status(200).send({ message: err.message, success: false });
@@ -65,7 +59,6 @@ router.put("/", (req, res) => {
             message: "Data updated Successfully",
             success: true,
             data: result,
-            token: tokengenerate({ user: req.user }),
           });
         }
       });
@@ -74,22 +67,29 @@ router.put("/", (req, res) => {
     res.status(400).json({ message: err.message, success: false });
   }
 });
+
 router.delete("/", (req, res) => {
   try {
     const { id } = req.query;
     if (!id) {
       res.status(200).send({ message: "id is not specify", success: false });
     } else {
-      topheader.deleteOne({ _id: id }, (err, result) => {
-        if (!result) {
-          res.status(200).send({ message: err.message, success: false });
-        } else {
-          res.status(200).send({
-            message: "Data deleted Successfully",
-            success: true,
-            data: result,
-            token: tokengenerate({ user: req.user }),
+      topheader.findOne({ _id: id }, (err, result) => {
+        if (result) {
+          fs.unlink(result.image, () => {});
+          topheader.deleteOne({ _id: id }, (err, result) => {
+            if (!result) {
+              res.status(200).send({ message: err.message, success: false });
+            } else {
+              res.status(200).send({
+                message: "Data deleted Successfully",
+                success: true,
+                data: result,
+              });
+            }
           });
+        } else {
+          res.status(200).json({ message: err.message, success: false });
         }
       });
     }
@@ -116,7 +116,6 @@ router.get("/", (req, res) => {
               message: "Data get Successfully",
               success: true,
               data: result,
-              token: tokengenerate({ user: req.user }),
             });
           }
         }
@@ -130,7 +129,6 @@ router.get("/", (req, res) => {
             message: "Data get Successfully",
             success: true,
             data: result,
-            token: tokengenerate({ user: req.user }),
           });
         }
       });

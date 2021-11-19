@@ -4,6 +4,29 @@ const mongoose = require("mongoose");
 require("dotenv").config();
 app.use(express.json());
 
+//cors
+const cors = require("cors");
+app.use(
+  cors({
+    origin: "*",
+
+    methods: ["GET", "POST"],
+
+    allowedHeaders: ["Content-Type"],
+  })
+);
+
+app.use(function (req, res, next) {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
+  res.setHeader(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept, Authorization,authorization"
+  );
+  res.setHeader("Access-Control-Allow-Credentials", true);
+  next();
+});
+
 //routes
 const topheader = require("./src/api/Topheader");
 const authentication = require("./src/api/Authentication");
@@ -22,6 +45,7 @@ const Websetting = require("./src/api/Websetting");
 const { verifytoken } = require("./src/middleware/auth");
 
 //set path
+app.use("/uploads", express.static("uploads"));
 app.use("/topheader", verifytoken, topheader);
 app.use("/auth", authentication);
 app.use("/banner", verifytoken, banner);

@@ -1,9 +1,10 @@
 const mongoose = require("mongoose");
-const pricing = mongoose.Schema({
-  text: String,
-  package: [],
-  created_at: String,
-  updated_at: String,
-});
+const pricing = mongoose.Schema(
+  {
+    text: String,
+    package: [],
+  },
+  { timestamps: true }
+);
 
 module.exports = mongoose.model("pricing", pricing);

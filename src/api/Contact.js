@@ -2,27 +2,21 @@ const express = require("express");
 const router = express.Router();
 const contact = require("../models/Contact");
 
-const { tokengenerate } = require("../middleware/auth");
-
 router.post("/", (req, res) => {
   try {
     const { first_name, last_name, email, mobile, website, message } = req.body;
 
-    if (!(email && mobile && website && message)) {
+    if (!(first_name && last_name && email && mobile && website && message)) {
       res
         .status(200)
         .send({ message: "All input is required", success: false });
     } else {
-      const date = new Date();
-      req.body.created_at = date.toLocaleString();
-
       const Contact = new contact(req.body);
       Contact.save().then((item) => {
         res.status(200).send({
           message: "Data save into Database",
           data: item,
           success: true,
-          token: tokengenerate({ user: req.user }),
         });
       });
     }
@@ -30,16 +24,13 @@ router.post("/", (req, res) => {
     res.status(400).json({ message: err.message, success: false });
   }
 });
-router.put("/", (req, res) => {
+router.put("/:id", (req, res) => {
   try {
-    const { id } = req.query;
+    const { id } = req.params;
 
     if (!id) {
       res.status(200).send({ message: "id is not specify", success: false });
     } else {
-      const date = new Date();
-      req.body.updated_at = date.toLocaleString();
-
       contact.updateOne({ _id: id }, req.body, (err, result) => {
         if (err) {
           res.status(200).send({ message: err.message, success: false });
@@ -48,7 +39,6 @@ router.put("/", (req, res) => {
             message: "Data updated Successfully",
             success: true,
             data: result,
-            token: tokengenerate({ user: req.user }),
           });
         }
       });
@@ -71,7 +61,6 @@ router.delete("/", (req, res) => {
             message: "Data deleted Successfully",
             success: true,
             data: result,
-            token: tokengenerate({ user: req.user }),
           });
         }
       });
@@ -90,7 +79,6 @@ router.get("/", (req, res) => {
           message: "Data get Successfully",
           success: true,
           data: result,
-          token: tokengenerate({ user: req.user }),
         });
       }
     });

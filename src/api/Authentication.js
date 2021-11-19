@@ -5,7 +5,7 @@ const multer = require("multer");
 const path = require("path");
 var bcrypt = require("bcryptjs");
 const nodemailer = require("nodemailer");
-const { tokengenerate } = require("../middleware/auth");
+const fs = require("fs");
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -45,8 +45,7 @@ router.post("/register", upload.array("file"), async (req, res) => {
         } else {
           var salt = bcrypt.genSaltSync(10);
           req.body.password = bcrypt.hashSync(req.body.password, salt);
-          const date = new Date();
-          req.body.created_at = date.toLocaleString();
+
           const Authentication = new authentication(req.body);
           Authentication.save().then((item) => {
             res.status(200).send({
@@ -151,8 +150,6 @@ router.post("/otpsend", async (req, res) => {
 });
 router.post("/updateprofile", (req, res) => {
   try {
-    const date = new Date();
-    req.body.updated_at = date.toLocaleString();
     authentication.updateOne(
       { _id: req.user.user._id },
       req.body,
@@ -231,8 +228,6 @@ router.post("/resetpassword", async (req, res) => {
             success: false,
           });
         } else {
-          const date = new Date();
-          req.body.updated_at = date.toLocaleString();
           var salt = bcrypt.genSaltSync(10);
           authentication.updateOne(
             { email: email },
@@ -246,6 +241,7 @@ router.post("/resetpassword", async (req, res) => {
                 res.status(200).send({
                   message: "Password updated successfully",
                   success: true,
+                  token: tokengenerate({ user: req.user }),
                 });
               }
             }

@@ -1,10 +1,9 @@
 const express = require("express");
 const router = express.Router();
 const market = require("../models/Market");
-
 const multer = require("multer");
 const path = require("path");
-const { tokengenerate } = require("../middleware/auth");
+const fs = require("fs");
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -44,8 +43,6 @@ router.post("/", upload.array("file"), (req, res) => {
         });
       }
       req.body.M_content = data;
-      const date = new Date();
-      req.body.created_at = date.toLocaleString();
 
       const Market = new market(req.body);
       Market.save().then((item) => {
@@ -53,7 +50,6 @@ router.post("/", upload.array("file"), (req, res) => {
           message: "Data save into Database",
           data: item,
           success: true,
-          token: tokengenerate({ user: req.user }),
         });
       });
     }
@@ -61,9 +57,9 @@ router.post("/", upload.array("file"), (req, res) => {
     res.status(400).json({ message: err.message, success: false });
   }
 });
-router.put("/", upload.array("file"), (req, res) => {
+router.put("/:id", upload.array("file"), (req, res) => {
   try {
-    const { id } = req.query;
+    const { id } = req.params;
     if (req.files) {
       req.body.image = req.files[0] ? req.files[0].path : "";
       if (req.body.M_content) var data = [];
@@ -79,9 +75,6 @@ router.put("/", upload.array("file"), (req, res) => {
     if (!id) {
       res.status(200).send({ message: "id is not specify", success: false });
     } else {
-      const date = new Date();
-      req.body.updated_at = date.toLocaleString();
-
       market.updateOne({ _id: id }, req.body, (err, result) => {
         if (err) {
           res.status(200).send({ message: err.message, success: false });
@@ -90,7 +83,6 @@ router.put("/", upload.array("file"), (req, res) => {
             message: "Data updated Successfully",
             success: true,
             data: result,
-            token: tokengenerate({ user: req.user }),
           });
         }
       });
@@ -105,16 +97,22 @@ router.delete("/", (req, res) => {
     if (!id) {
       res.status(200).send({ message: "id is not specify", success: false });
     } else {
-      market.deleteOne({ _id: id }, (err, result) => {
-        if (!result) {
-          res.status(200).send({ message: err.message, success: false });
-        } else {
-          res.status(200).send({
-            message: "Data deleted Successfully",
-            success: true,
-            data: result,
-            token: tokengenerate({ user: req.user }),
+      market.findOne({ _id: id }, (err, result) => {
+        if (result) {
+          fs.unlink(result.image, () => {});
+          market.deleteOne({ _id: id }, (err, result) => {
+            if (!result) {
+              res.status(200).send({ message: err.message, success: false });
+            } else {
+              res.status(200).send({
+                message: "Data deleted Successfully",
+                success: true,
+                data: result,
+              });
+            }
           });
+        } else {
+          res.status(200).send({ message: err.message, success: false });
         }
       });
     }
@@ -141,7 +139,6 @@ router.get("/", (req, res) => {
               message: "Data get Successfully",
               success: true,
               data: result,
-              token: tokengenerate({ user: req.user }),
             });
           }
         }
@@ -155,7 +152,6 @@ router.get("/", (req, res) => {
             message: "Data get Successfully",
             success: true,
             data: result,
-            token: tokengenerate({ user: req.user }),
           });
         }
       });

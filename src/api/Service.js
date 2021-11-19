@@ -3,7 +3,7 @@ const router = express.Router();
 const service = require("../models/Service");
 const multer = require("multer");
 const path = require("path");
-const { tokengenerate } = require("../middleware/auth");
+const fs = require("fs");
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -42,15 +42,12 @@ router.post("/", upload.array("file"), (req, res) => {
         .status(200)
         .send({ message: "All input is required", success: false });
     } else {
-      const date = new Date();
-      req.body.created_at = date.toLocaleString();
       const Banner = new service(req.body);
       Banner.save().then((item) => {
         res.status(200).send({
           message: "Data save into Database",
           data: item,
           success: true,
-          token: tokengenerate({ user: req.user }),
         });
       });
     }
@@ -58,14 +55,12 @@ router.post("/", upload.array("file"), (req, res) => {
     res.status(400).json({ message: err.message, success: false });
   }
 });
-router.put("/", (req, res) => {
+router.put("/:id", (req, res) => {
   try {
-    const { id } = req.query;
+    const { id } = req.params;
     if (!id) {
       res.status(200).send({ message: "id is not specify", success: false });
     } else {
-      const date = new Date();
-      req.body.updated_at = date.toLocaleString();
       service.updateOne({ _id: id }, req.body, (err, result) => {
         if (err) {
           res.status(200).send({ message: err.message, success: false });
@@ -74,7 +69,6 @@ router.put("/", (req, res) => {
             message: "Data updated Successfully",
             success: true,
             data: result,
-            token: tokengenerate({ user: req.user }),
           });
         }
       });
@@ -89,16 +83,22 @@ router.delete("/", (req, res) => {
     if (!id) {
       res.status(200).send({ message: "id is not specify", success: false });
     } else {
-      service.deleteOne({ _id: id }, (err, result) => {
-        if (!result) {
-          res.status(200).send({ message: err.message, success: false });
-        } else {
-          res.status(200).send({
-            message: "Data deleted Successfully",
-            success: true,
-            data: result,
-            token: tokengenerate({ user: req.user }),
+      service.findOne({ _id: id }, (err, result) => {
+        if (result) {
+          fs.unlink(result.image, () => {});
+          service.deleteOne({ _id: id }, (err, result) => {
+            if (!result) {
+              res.status(200).send({ message: err.message, success: false });
+            } else {
+              res.status(200).send({
+                message: "Data deleted Successfully",
+                success: true,
+                data: result,
+              });
+            }
           });
+        } else {
+          res.status(200).send({ message: err.message, success: false });
         }
       });
     }
@@ -125,7 +125,6 @@ router.get("/", (req, res) => {
               message: "Data get Successfully",
               success: true,
               data: result,
-              token: tokengenerate({ user: req.user }),
             });
           }
         }
@@ -139,7 +138,6 @@ router.get("/", (req, res) => {
             message: "Data get Successfully",
             success: true,
             data: result,
-            token: tokengenerate({ user: req.user }),
           });
         }
       });
