@@ -6,6 +6,7 @@ const path = require("path");
 var bcrypt = require("bcryptjs");
 const nodemailer = require("nodemailer");
 const fs = require("fs");
+const { tokengenerate, verifyadmintoken } = require("../middleware/auth");
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -22,29 +23,39 @@ const storage = multer.diskStorage({
 
 var upload = multer({ storage: storage });
 
-router.post("/register", upload.array("file"), async (req, res) => {
+//signup for user
+router.post("/register/user", upload.array("file"), async (req, res) => {
   try {
     const { name, email, password } = req.body;
+      
     var re = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
-
+    if (req.files.length > 0) {
+      req.body.file = req.files[0] ? req.files[0].path : "";
+    }
     if (!(name && email && password)) {
       res
         .status(200)
         .send({ message: "All input is required", success: false });
     } else if (!re.test(email)) {
       res.status(422).send({ message: "invlaid Email", success: false });
-    } else if (req.files.length > 0) {
-      req.body.file = req.files[0] ? req.files[0].path : "";
     } else {
       authentication.findOne({ email: email }, (err, data) => {
-        if (data) {
+        if (data){
+            if(data.usertype!=3){
           res.status(200).send({
-            message: "User already exist please login...",
+            message: "User already exist with another role",
+            success: false,
+            });
+          }else{
+            res.status(200).send({
+            message: "User already exist....",
             success: false,
           });
+          }
         } else {
           var salt = bcrypt.genSaltSync(10);
           req.body.password = bcrypt.hashSync(req.body.password, salt);
+          req.body.usertype= 3
 
           const Authentication = new authentication(req.body);
           Authentication.save().then((item) => {
@@ -62,6 +73,113 @@ router.post("/register", upload.array("file"), async (req, res) => {
     res.status(400).send({ message: err.message, success: false });
   }
 });
+
+//signup for manager
+router.post("/register/manager",verifyadmintoken, upload.array("file"),(req,res)=>{
+  try{
+    const { name, email, password, } = req.body;
+      
+    var re = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+    if (req.files.length > 0) {
+      req.body.file = req.files[0] ? req.files[0].path : "";
+    }
+    if (!(name && email && password)) {
+      res
+        .status(200)
+        .send({ message: "All input is required", success: false });
+    } else if (!re.test(email)) {
+      res.status(422).send({ message: "invlaid Email", success: false });
+    } else {
+      authentication.findOne({ email: email }, (err, data) => {
+        if (data){
+            if(data.usertype!=2){
+          res.status(200).send({
+            message: "User already exist with another role",
+            success: false,
+            });
+          }else{
+            res.status(200).send({
+            message: "User already exist....",
+            success: false,
+          });
+          }
+        } else {
+          var salt = bcrypt.genSaltSync(10);
+          req.body.password = bcrypt.hashSync(req.body.password, salt);
+          
+          req.body.usertype = 2
+
+          const Authentication = new authentication(req.body);
+          Authentication.save().then((item) => {
+            res.status(200).send({
+              message: "Data save into Database",
+              data: item,
+              token: tokengenerate({ user: item }),
+              success: true,
+            });
+          });
+        }
+      });
+    }
+    
+  }catch(err){
+    res.status(400).send({ message: err.message, success: false });
+  }
+})
+
+//signup for admin
+router.post("/register/admin", upload.array("file"),(req,res)=>{
+  try{
+      const { name, email, password, } = req.body;
+      
+    var re = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+    if (req.files.length > 0) {
+      req.body.file = req.files[0] ? req.files[0].path : "";
+    }
+    if (!(name && email && password)) {
+      res
+        .status(200)
+        .send({ message: "All input is required", success: false });
+    } else if (!re.test(email)) {
+      res.status(422).send({ message: "invlaid Email", success: false });
+    } else {
+      authentication.findOne({ email: email }, (err, data) => {
+        if (data){
+            if(data.usertype!=1){
+          res.status(200).send({
+            message: "User already exist with another role",
+            success: false,
+            });
+          }else{
+            res.status(200).send({
+            message: "User already exist....",
+            success: false,
+          });
+          }
+        } else {
+          var salt = bcrypt.genSaltSync(10);
+          req.body.password = bcrypt.hashSync(req.body.password, salt);
+          
+          req.body.usertype = 1
+
+          const Authentication = new authentication(req.body);
+          Authentication.save().then((item) => {
+            res.status(200).send({
+              message: "Data save into Database",
+              data: item,
+              token: tokengenerate({ user: item }),
+              success: true,
+            });
+          });
+        }
+      });
+    }
+  }catch(err){
+    res.status(400).send({ message: err.message, success: false });
+  }
+})
+
+//login
 router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -74,8 +192,6 @@ router.post("/login", async (req, res) => {
       const user = await authentication.findOne({ email: email });
 
       if (user && (await bcrypt.compare(password, user.password))) {
-        // Create token
-
         res.status(200).send({
           data: user,
           message: "Login Successfull",
@@ -94,6 +210,8 @@ router.post("/login", async (req, res) => {
     res.status(400).send({ message: err.message, success: false });
   }
 });
+
+//otpsend
 router.post("/otpsend", async (req, res) => {
   try {
     const email = req.body.email || req.query.email;
@@ -148,10 +266,16 @@ router.post("/otpsend", async (req, res) => {
     res.status(400).send({ message: err.message, success: false });
   }
 });
+
+//updateprofile
 router.post("/updateprofile", (req, res) => {
   try {
+    const id = req.user.user._id || req.query 
+    if(!id){
+      res.status(200).send({message:"id is not valid ", success:false})
+    }else{
     authentication.updateOne(
-      { _id: req.user.user._id },
+      { _id:id },
       req.body,
       (err, result) => {
         if (err) {
@@ -165,10 +289,13 @@ router.post("/updateprofile", (req, res) => {
         }
       }
     );
+    }
   } catch (err) {
     res.status(400).send({ message: err.message, success: false });
   }
 });
+
+//otpverify
 router.post("/otpverify", async (req, res) => {
   try {
     const { email, otp } = req.query;
@@ -206,6 +333,8 @@ router.post("/otpverify", async (req, res) => {
     res.status(400).send({ message: err.message, success: false });
   }
 });
+
+//resetpassword
 router.post("/resetpassword", async (req, res) => {
   try {
     const { email, password, confirmpassword } = req.body;

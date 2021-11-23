@@ -5,12 +5,15 @@ const order = require("../models/Order");
 router.post("/", (req, res) => {
   try {
     const {
-      first_name,
-      last_name,
+      fullname,
       email,
       mobile,
       address,
       city,
+      startdate,
+      enddate,
+      starttime,
+      endtime,
       country,
       postal_code,
       quantity,
@@ -19,13 +22,16 @@ router.post("/", (req, res) => {
 
     if (
       !(
-        first_name &&
-        last_name &&
+        fullname &&
         email &&
         mobile &&
         address &&
         city &&
         country &&
+        startdate &&
+        enddate &&
+        starttime &&
+        endtime &&
         postal_code &&
         quantity &&
         order_note

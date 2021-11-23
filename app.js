@@ -16,6 +16,8 @@ app.use(
   })
 );
 
+const { verifyadmintoken } = require("./src/middleware/auth");
+
 app.use(function (req, res, next) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
@@ -27,6 +29,7 @@ app.use(function (req, res, next) {
   next();
 });
 
+//Admin Api's
 //routes
 const topheader = require("./src/api/Topheader");
 const authentication = require("./src/api/Authentication");
@@ -42,24 +45,24 @@ const category = require("./src/api/Category");
 const product = require("./src/api/Product");
 const order = require("./src/api/Order");
 const Websetting = require("./src/api/Websetting");
-const { verifytoken } = require("./src/middleware/auth");
 
 //set path
 app.use("/uploads", express.static("uploads"));
-app.use("/topheader", verifytoken, topheader);
+app.use("/topheader", verifyadmintoken, topheader);
 app.use("/auth", authentication);
-app.use("/banner", verifytoken, banner);
-app.use("/about", verifytoken, about);
-app.use("/Service", verifytoken, Service);
-app.use("/Price", verifytoken, price);
-app.use("/Work", verifytoken, Works);
-app.use("/market", verifytoken, market);
-app.use("/faq", verifytoken, faq);
-app.use("/contact", verifytoken, contact);
-app.use("/category", verifytoken, category);
-app.use("/product", verifytoken, product);
-app.use("/order", verifytoken, order);
-app.use("/Websetting", verifytoken, Websetting);
+app.use("/banner", banner);
+app.use("/about", verifyadmintoken, about);
+app.use("/Service", verifyadmintoken, Service);
+app.use("/Price", verifyadmintoken, price);
+app.use("/Work", verifyadmintoken, Works);
+app.use("/market", verifyadmintoken, market);
+app.use("/faq", verifyadmintoken, faq);
+app.use("/contact", verifyadmintoken, contact);
+app.use("/category", verifyadmintoken, category);
+app.use("/product", verifyadmintoken, product);
+app.use("/order", verifyadmintoken, order);
+app.use("/Websetting", verifyadmintoken, Websetting);
+
 
 //Data base connection
 var url = process.env.MONGO_URL;
