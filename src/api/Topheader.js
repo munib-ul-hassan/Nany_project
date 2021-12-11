@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const topheader = require("../models/topheader");
+const topheader = require("../models/Topheader");
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
