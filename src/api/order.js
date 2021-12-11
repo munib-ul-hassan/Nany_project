@@ -42,7 +42,7 @@ router.post("/", verifytoken, (req, res) => {
         .status(200)
         .send({ message: "All input is required", success: false });
     } else {
-      req.body.status = "pending"
+      req.body.status = "Pending"
       const Order = new order(req.body);
       Order.save().then((item) => {
         res.status(200).send({
@@ -191,7 +191,7 @@ router.put('/rejectorder/:id', verifyadmintoken, (req, res) => {
       if (!result) {
         res.status(200).send({ message: "Invalid selection", success: false });
       } else {
-        order.updateOne({ _id: id }, { status: "reject" }, (err, value) => {
+        order.updateOne({ _id: id }, { status: "Rejected" }, (err, value) => {
           if (err) {
             res.status(200).json({ message: err.message, success: false });
 
@@ -214,7 +214,7 @@ router.put('/assignorder/:id', verifyadmintoken, (req, res) => {
         res.status(200).send({ message: "Invalid selection", success: false });
       } else {
 
-        order.updateOne({ _id: id }, { status: "Assign" }, (err, value) => {
+        order.updateOne({ _id: id }, { status: "Assigned" }, (err, value) => {
           if (err) {
             res.status(200).json({ message: err.message, success: false });
 
@@ -229,7 +229,7 @@ router.put('/assignorder/:id', verifyadmintoken, (req, res) => {
 
   }
 })
-router.put('/acceptorder/:id', verifyadmintoken, (req, res) => {
+router.put('/cancelorder/:id', verifyadmintoken, (req, res) => {
   try {
     const { id } = req.params;
     order.findOne({ _id: id }, (err, result) => {
