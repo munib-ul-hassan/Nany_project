@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gealocation </title>
+</head>
+<body>
+    
+    <button id="start">start</button>
+    <button id="stop"> stop</button>
+
+    <script>
+const start = document.getElementById("start")
+const stop= document.querySelector("stop" )
+
+start.addEventListener("click",()=>{
+    navigator.geolocation.getCurrentPosition(data=>{  
+        console.log(data);
+        },err=>console.log(err)
+    );
+})
+</script>
+
+</body>
+</html>
