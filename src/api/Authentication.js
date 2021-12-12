@@ -190,7 +190,7 @@ router.post("/login", async (req, res) => {
         .send({ message: "All input is required", success: false });
     } else {
       const user = await authentication.findOne({ email: email });
-      console.log(user);
+
       if (user && (await bcrypt.compare(password, user.password))) {
         res.status(200).send({
           data: user,

@@ -51,17 +51,17 @@ app.use("/uploads", express.static("uploads"));
 app.use("/topheader", topheader);
 app.use("/auth", authentication);
 app.use("/banner", banner);
-app.use("/about", verifyadmintoken, about);
-app.use("/Service", verifyadmintoken, Service);
-app.use("/Price", verifyadmintoken, price);
-app.use("/Work", verifyadmintoken, Works);
-app.use("/market", verifyadmintoken, market);
-app.use("/faq", verifyadmintoken, faq);
-app.use("/contact", verifyadmintoken, contact);
-app.use("/category", verifyadmintoken, category);
-app.use("/product", verifyadmintoken, product);
+app.use("/about", about);
+app.use("/Service", Service);
+app.use("/Price", price);
+app.use("/Work", Works);
+app.use("/market", market);
+app.use("/faq", faq);
+app.use("/contact", contact);
+app.use("/category", category);
+app.use("/product", product);
 app.use("/order", order);
-app.use("/Websetting", verifyadmintoken, Websetting);
+app.use("/Websetting", Websetting);
 
 //
 app.use(function (req, res, next) {

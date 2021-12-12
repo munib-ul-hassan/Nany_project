@@ -3,7 +3,7 @@ const router = express.Router();
 const order = require("../models/Order");
 const { verifyadmintoken, verifytoken } = require('../middleware/auth')
 
-router.post("/", verifytoken, (req, res) => {
+router.post("/", (req, res) => {
   try {
     const {
       fullname,
@@ -11,8 +11,8 @@ router.post("/", verifytoken, (req, res) => {
       mobile,
       address,
       city,
-      startdate,
-      enddate,
+      from,
+      to,
       starttime,
       endtime,
       country,
@@ -29,8 +29,8 @@ router.post("/", verifytoken, (req, res) => {
         address &&
         city &&
         country &&
-        startdate &&
-        enddate &&
+        from &&
+        to &&
         starttime &&
         endtime &&
         postal_code &&
@@ -78,7 +78,7 @@ router.put("/:id", verifytoken, (req, res) => {
     res.status(400).json({ message: err.message, success: false });
   }
 });
-router.delete("/", verifytoken, (req, res) => {
+router.delete("/", (req, res) => {
   try {
     const { id } = req.query;
     if (!id) {
@@ -104,13 +104,14 @@ router.get("/", verifytoken, (req, res) => {
   try {
     const { email, by_status } = req.query;
     if (email && by_status) {
+
       order.find(
         {
           email: {
             $regex: email,
             $options: "i",
           },
-          staus: by_status,
+          status: by_status,
         },
         (err, result) => {
           if (!result) {
@@ -125,6 +126,8 @@ router.get("/", verifytoken, (req, res) => {
         }
       );
     } else if (email) {
+
+
       order.find(
         {
           email: {
@@ -144,7 +147,27 @@ router.get("/", verifytoken, (req, res) => {
           }
         }
       );
+    } else if (by_status) {
+
+
+      order.find(
+        {
+          status: by_status
+        },
+        (err, result) => {
+          if (!result) {
+            res.status(200).send({ message: err.message, success: false });
+          } else {
+            res.status(200).send({
+              message: "Data get Successfully",
+              success: true,
+              data: result,
+            });
+          }
+        }
+      );
     } else {
+
       order.find({}, (err, result) => {
         if (!result) {
           res.status(200).send({ message: err.message, success: false });
@@ -161,7 +184,7 @@ router.get("/", verifytoken, (req, res) => {
     res.status(400).json({ message: err.message, success: false });
   }
 });
-router.put('/acceptorder/:id', verifyadmintoken, (req, res) => {
+router.put('/acceptorder/:id', (req, res) => {
   try {
     const { id } = req.params;
     order.findOne({ _id: id }, (err, result) => {
@@ -184,7 +207,7 @@ router.put('/acceptorder/:id', verifyadmintoken, (req, res) => {
 
   }
 })
-router.put('/rejectorder/:id', verifyadmintoken, (req, res) => {
+router.put('/rejectorder/:id', (req, res) => {
   try {
     const { id } = req.params;
     order.findOne({ _id: id }, (err, result) => {
@@ -196,7 +219,7 @@ router.put('/rejectorder/:id', verifyadmintoken, (req, res) => {
             res.status(200).json({ message: err.message, success: false });
 
           } else {
-            res.status(200).json({ message: "Order accepted Successfully", success: false });
+            res.status(200).json({ message: "Order Rejected", success: false });
           }
         })
       }
@@ -206,7 +229,7 @@ router.put('/rejectorder/:id', verifyadmintoken, (req, res) => {
 
   }
 })
-router.put('/assignorder/:id', verifyadmintoken, (req, res) => {
+router.put('/assignorder/:id', (req, res) => {
   try {
     const { id } = req.params;
     order.findOne({ _id: id }, (err, result) => {
@@ -219,7 +242,7 @@ router.put('/assignorder/:id', verifyadmintoken, (req, res) => {
             res.status(200).json({ message: err.message, success: false });
 
           } else {
-            res.status(200).json({ message: "Order accepted Successfully", success: false });
+            res.status(200).json({ message: "Order Assign Successfully", success: false });
           }
         })
       }
@@ -229,7 +252,7 @@ router.put('/assignorder/:id', verifyadmintoken, (req, res) => {
 
   }
 })
-router.put('/cancelorder/:id', verifyadmintoken, (req, res) => {
+router.put('/cancelorder/:id', (req, res) => {
   try {
     const { id } = req.params;
     order.findOne({ _id: id }, (err, result) => {
@@ -242,7 +265,7 @@ router.put('/cancelorder/:id', verifyadmintoken, (req, res) => {
             res.status(200).json({ message: err.message, success: false });
 
           } else {
-            res.status(200).json({ message: "Order accepted Successfully", success: false });
+            res.status(200).json({ message: "Order Cancelled", success: false });
           }
         })
       }
