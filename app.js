@@ -43,7 +43,7 @@ const faq = require("./src/api/Faq");
 const contact = require("./src/api/Contact");
 const category = require("./src/api/Category");
 const product = require("./src/api/Product");
-const order = require("./src/api/Order");
+const order = require("./src/api/order");
 const Websetting = require("./src/api/Websetting");
 
 //set path
