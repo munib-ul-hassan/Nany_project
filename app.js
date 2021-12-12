@@ -43,7 +43,7 @@ const faq = require("./src/api/Faq");
 const contact = require("./src/api/Contact");
 const category = require("./src/api/Category");
 const product = require("./src/api/Product");
-const order = require("./src/api/order");
+const order = require("./src/api/Order");
 const Websetting = require("./src/api/Websetting");
 
 //set path
@@ -85,7 +85,7 @@ mongoose.connect(
 );
 
 //Creating Server
-const port = 4000 || process.env.PORT;
+const port = process.env.PORT || 4000;
 app.listen(port, () => {
   console.log(`Server is Running....`);
 });
