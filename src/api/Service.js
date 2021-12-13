@@ -22,9 +22,7 @@ var upload = multer({ storage: storage });
 router.post("/", upload.array("file"), (req, res) => {
   try {
     req.body.Service = JSON.parse(req.body.Service);
-
     const { text, Service } = req.body;
-
     content = [];
 
     for (var i = 0; i < Service.length; i++) {
@@ -32,18 +30,18 @@ router.post("/", upload.array("file"), (req, res) => {
         text: Service[i].text || " ",
         name: Service[i].name || " ",
         image: req.files[i] ? req.files[i].path : " ",
-      });
+      })
     }
 
     req.body.Service = content;
 
-    if (!(text && Service)) {
+    if (!(Service)) {
       res
         .status(200)
         .send({ message: "All input is required", success: false });
     } else {
-      const Banner = new service(req.body);
-      Banner.save().then((item) => {
+      const Service = new service(req.body);
+      Service.save().then((item) => {
         res.status(200).send({
           message: "Data save into Database",
           data: item,
@@ -85,7 +83,7 @@ router.delete("/", (req, res) => {
     } else {
       service.findOne({ _id: id }, (err, result) => {
         if (result) {
-          fs.unlink(result.image, () => {});
+          fs.unlink(result.image, () => { });
           service.deleteOne({ _id: id }, (err, result) => {
             if (!result) {
               res.status(200).send({ message: err.message, success: false });

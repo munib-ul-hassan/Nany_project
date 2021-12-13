@@ -22,12 +22,12 @@ var upload = multer({ storage: storage });
 
 router.post("/", upload.array("file"), (req, res) => {
   try {
-    const { name } = req.body;
+    const { text, heading } = req.body;
 
     if (req.files) {
       req.body.image = req.files[0] ? req.files[0].path : "";
     }
-    if (!name) {
+    if (!(text && heading)) {
       res
         .status(200)
         .send({ message: "All input is required", success: false });
@@ -54,18 +54,18 @@ router.put("/:id", upload.array("file"), (req, res) => {
     }
     if (!id) {
       res.status(200).send({ message: "id is not specify", success: false });
-      } else {
-        cateogry.updateOne({ _id: id }, req.body, (err, result) => {
-          if (err) {
-            res.status(200).send({ message: err.message, success: false });
-          } else {
-            res.status(200).send({
-              message: "Data updated Successfully",
-              success: true,
-              data: result,
-            });
-          }
-        });
+    } else {
+      cateogry.updateOne({ _id: id }, req.body, (err, result) => {
+        if (err) {
+          res.status(200).send({ message: err.message, success: false });
+        } else {
+          res.status(200).send({
+            message: "Data updated Successfully",
+            success: true,
+            data: result,
+          });
+        }
+      });
     }
   } catch (err) {
     res.status(400).json({ message: err.message, success: false });
@@ -79,7 +79,7 @@ router.delete("/", (req, res) => {
     } else {
       cateogry.findeOne({ _id: id }, (err, result) => {
         if (result) {
-          fs.unlink(result.image, () => {});
+          fs.unlink(result.image, () => { });
           cateogry.deleteOne({ _id: id }, (err, result) => {
             if (!result) {
               res.status(200).send({ message: err.message, success: false });

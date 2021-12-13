@@ -2,10 +2,12 @@ const mongoose = require("mongoose");
 const banner = mongoose.Schema(
   {
     Bgimage: String,
-    heading1: String,
-    heading2: String,
-    text1: String,
-    text2: String,
+    Primage: String,
+
+    Bt1: String,
+    Bt2: String,
+    Pt1: String,
+    Pt2: String,
     Profile: String,
   },
   { timestamps: true }

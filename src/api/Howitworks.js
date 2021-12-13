@@ -21,35 +21,45 @@ var upload = multer({ storage: storage });
 
 router.post("/", upload.array("file"), (req, res) => {
   try {
-    req.body.works = JSON.parse(req.body.works);
+    HIwork.find({}, (err, result) => {
 
-    const { text, works } = req.body;
+      if (result.length > 0) {
+        res
+          .status(200)
+          .send({ message: "First delete data then post", success: false });
+      } else {
 
-    content = [];
+        req.body.works = JSON.parse(req.body.works);
 
-    for (var i = 0; i < works.length; i++) {
-      content.push({
-        text: works[i].text || " ",
-        icon: req.files[i] ? req.files[i].path : " ",
-      });
-    }
+        const { text, works } = req.body;
 
-    req.body.works = content;
+        content = [];
+        console.log(req.files);
+        for (var i = 0; i < works.length; i++) {
+          content.push({
+            text: works[i].text || " ",
+            icon: req.files[i] ? req.files[i].path : " ",
+          });
+        }
 
-    if (!(text && works)) {
-      res
-        .status(200)
-        .send({ message: "All input is required", success: false });
-    } else {
-      const hiwork = new HIwork(req.body);
-      hiwork.save().then((item) => {
-        res.status(200).send({
-          message: "Data save into Database",
-          data: item,
-          success: true,
-        });
-      });
-    }
+        req.body.works = content;
+
+        if (!(text && works)) {
+          res
+            .status(200)
+            .send({ message: "All input is required", success: false });
+        } else {
+          const hiwork = new HIwork(req.body);
+          hiwork.save().then((item) => {
+            res.status(200).send({
+              message: "Data save into Database",
+              data: item,
+              success: true,
+            });
+          });
+        }
+      }
+    })
   } catch (err) {
     res.status(400).json({ message: err.message, success: false });
   }
@@ -84,7 +94,7 @@ router.delete("/", (req, res) => {
     } else {
       HIwork.findOne({ _id: id }, (err, result) => {
         if (result) {
-          fs.unlink(result.icon, () => {});
+          fs.unlink(result.icon, () => { });
           HIwork.deleteOne({ _id: id }, (err, result) => {
             if (!result) {
               res.status(200).send({ message: err.message, success: false });

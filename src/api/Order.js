@@ -192,6 +192,7 @@ router.put('/acceptorder/:id', (req, res) => {
         res.status(200).send({ message: "Invalid selection", success: false });
       } else {
 
+
         order.updateOne({ _id: id }, { status: "Accepted" }, (err, value) => {
           if (err) {
             res.status(200).json({ message: err.message, success: false });

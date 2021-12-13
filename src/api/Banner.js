@@ -21,11 +21,12 @@ var upload = multer({ storage: storage });
 
 router.post("/", upload.array("file"), (req, res) => {
   try {
-    const { heading1, heading2, text1, text2 } = req.body;
+    const { Bt1, Bt2, Pt1, Pt2 } = req.body;
     if (req.files.length > 0) {
       req.body.Bgimage = req.files[0].path;
+      req.body.Primage = req.files[1].path;
     }
-    if (!(heading1 && heading2 && text1 && text2)) {
+    if (!(Bt1 && Bt2 && Pt1 && Pt2)) {
       res
         .status(200)
         .send({ message: "All input is required", success: false });
@@ -75,7 +76,9 @@ router.delete("/", (req, res) => {
     } else {
       banner.findOne({ _id: id }, (err, result) => {
         if (result) {
-          fs.unlink(result.Bgimage, () => {});
+          fs.unlink(result.Bgimage, () => { });
+          fs.unlink(result.Primage, () => { });
+
           banner.deleteOne({ _id: id }, (err, result) => {
             if (!result) {
               res.status(200).send({ message: err.message, success: false });
@@ -102,7 +105,7 @@ router.get("/", (req, res) => {
     if (Search) {
       banner.find(
         {
-          heading1: {
+          Bt1: {
             $regex: Search,
             $options: "i",
           },

@@ -21,27 +21,42 @@ var upload = multer({ storage: storage });
 
 router.post("/", upload.array("file"), (req, res) => {
   try {
-    const { sections, text } = req.body;
-    if (req.files.length > 0) {
-      req.body.video = req.files[0] ? req.files[0].path : "";
-    }
-    req.body.sections = JSON.parse(req.body.sections);
+    about.findOne({}, (err, result) => {
+      if (result) {
+        res
+          .status(200)
+          .send({ message: "Data already exist", success: false });
+      } else {
+        req.body.sections = JSON.parse(req.body.sections);
+        const { sections, text } = req.body;
+        if (req.files.length > 0) {
+          req.body.video = req.files[0] ? req.files[0].path : "";
+          req.body.sections[0].image = req.files[1] ? req.files[1].path : "";
+          req.body.sections[1].image = req.files[2] ? req.files[2].path : "";
+          req.body.sections[2].image = req.files[3] ? req.files[3].path : "";
+          req.body.sections[3].image = req.files[4] ? req.files[4].path : "";
+        }
 
-    if (!(sections && text)) {
-      res
-        .status(200)
-        .send({ message: "All input is required", success: false });
-    } else {
-      const About = new about(req.body);
 
-      About.save().then((item) => {
-        res.status(200).send({
-          message: "Data save into Database",
-          data: item,
-          success: true,
-        });
-      });
-    }
+        if (!(sections && text)) {
+          res
+            .status(200)
+            .send({ message: "All input is required", success: false });
+        } else {
+          const About = new about(req.body);
+
+          About.save().then((item) => {
+            console.log(item);
+            res.status(200).send({
+              message: "Data save into Database",
+              data: item,
+              success: true,
+            });
+          });
+        }
+      }
+    })
+
   } catch (err) {
     res.status(400).json({ message: err.message, success: false });
   }
@@ -77,7 +92,10 @@ router.delete("/", (req, res) => {
     } else {
       about.findOne({ _id: id }, (err, result) => {
         if (result) {
-          fs.unlink(result.video, () => {});
+          fs.unlink(result.video, () => { });
+          result.sections.map((item) => {
+            fs.unlink(item.image, () => { });
+          })
           about.deleteOne({ _id: id }, (err, result) => {
             if (!result) {
               res.status(200).send({ message: err.message, success: false });
@@ -91,6 +109,7 @@ router.delete("/", (req, res) => {
           });
         } else {
           res.status(200).send({ message: err.message, success: false });
+
         }
       });
     }
