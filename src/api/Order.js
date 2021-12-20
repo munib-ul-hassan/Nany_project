@@ -7,8 +7,8 @@ router.post("/", (req, res) => {
   try {
     console.log(req.body);
     const {
-      fname,
-      lname,
+
+      name,
       email,
       mobile,
       address,
@@ -25,8 +25,8 @@ router.post("/", (req, res) => {
 
     if (
       !(
-        fname &&
-        lname &&
+
+        name &&
         email &&
         mobile &&
         address &&

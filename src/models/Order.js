@@ -1,8 +1,7 @@
 const mongoose = require("mongoose");
 const order = mongoose.Schema(
   {
-    fname: String,
-    lname: String,
+    name: String,
     email: String,
     mobile: Number,
     address: String,
@@ -24,7 +23,7 @@ const order = mongoose.Schema(
     order_note: String,
 
     status: String,
-    comment: String,
+    order_note: String,
   },
   { timestamps: true }
 );
