@@ -22,17 +22,13 @@ var upload = multer({ storage: storage });
 router.post("/", upload.array("file"), (req, res) => {
   try {
     HIwork.find({}, (err, result) => {
-
       if (result.length > 0) {
         res
           .status(200)
           .send({ message: "First delete data then post", success: false });
       } else {
-
         req.body.works = JSON.parse(req.body.works);
-
         const { text, works } = req.body;
-
         content = [];
         console.log(req.files);
         for (var i = 0; i < works.length; i++) {

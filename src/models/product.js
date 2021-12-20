@@ -8,6 +8,14 @@ const product = mongoose.Schema(
         ref: "category",
       },
     ],
+    image: String,
+    price: Number,
+    image: String,
+    quantity: Number,
+    color: Array,
+    instock: Boolean,
+    quantity: Number,
+    star: Number
   },
   { timestamps: true }
 );

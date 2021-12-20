@@ -1,11 +1,11 @@
 const express = require("express");
 const router = express.Router();
 const cateogry = require("../models/Category");
-const multer = require("multer");
 const path = require("path");
 const category = require("../models/Category");
 const fs = require("fs");
 
+const multer = require("multer");
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, "uploads/category/");
@@ -80,14 +80,14 @@ router.delete("/", (req, res) => {
       cateogry.findeOne({ _id: id }, (err, result) => {
         if (result) {
           fs.unlink(result.image, () => { });
-          cateogry.deleteOne({ _id: id }, (err, result) => {
-            if (!result) {
+          cateogry.deleteOne({ _id: id }, (err, val) => {
+            if (!val) {
               res.status(200).send({ message: err.message, success: false });
             } else {
               res.status(200).send({
                 message: "Data deleted Successfully",
                 success: true,
-                data: result,
+
               });
             }
           });

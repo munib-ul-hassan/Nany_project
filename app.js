@@ -76,7 +76,7 @@ mongoose.connect(
   { useUnifiedTopology: true, useNewUrlParser: true },
   function (err) {
     if (err) {
-      console.log("Erorr");
+
       console.log(err);
     } else {
       console.log("DataBase connected");

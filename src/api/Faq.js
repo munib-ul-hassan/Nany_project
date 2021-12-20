@@ -2,32 +2,12 @@ const express = require("express");
 const router = express.Router();
 const faq = require("../models/Faq");
 
-const multer = require("multer");
-const path = require("path");
-const fs = require("fs");
 
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, "uploads/faq/");
-  },
-  filename: function (req, file, cb) {
-    cb(
-      null,
-      file.fieldname + "-" + Date.now() + path.extname(file.originalname)
-    );
-  },
-});
 
-var upload = multer({ storage: storage });
-
-router.post("/", upload.array("file"), (req, res) => {
+router.post("/", (req, res) => {
   try {
     const { question, answer } = req.body;
-
-    if (req.files.length > 0) {
-      req.body.image = req.files[0].path;
-    }
-
+    console.log(req.body);
     if (!(question && answer)) {
       res
         .status(200)
@@ -46,7 +26,7 @@ router.post("/", upload.array("file"), (req, res) => {
     res.status(400).json({ message: err.message, success: false });
   }
 });
-router.put("/:id", upload.array("file"), (req, res) => {
+router.put("/:id", (req, res) => {
   try {
     const { id } = req.params;
     if (req.files) {
@@ -80,7 +60,7 @@ router.delete("/", (req, res) => {
     } else {
       faq.findOne({ _id: id }, (err, result) => {
         if (result) {
-          fs.unlink(result.image, () => {});
+
           faq.deleteOne({ _id: id }, (err, result) => {
             if (!result) {
               res.status(200).send({ message: err.message, success: false });
