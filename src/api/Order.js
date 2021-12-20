@@ -5,8 +5,10 @@ const { verifyadmintoken, verifytoken } = require('../middleware/auth')
 
 router.post("/", (req, res) => {
   try {
+    console.log(req.body);
     const {
-      fullname,
+      fname,
+      lname,
       email,
       mobile,
       address,
@@ -16,26 +18,23 @@ router.post("/", (req, res) => {
       starttime,
       endtime,
       country,
-      postal_code,
+      postalCode,
       quantity,
       order_note,
     } = req.body;
 
     if (
       !(
-        fullname &&
+        fname &&
+        lname &&
         email &&
         mobile &&
         address &&
         city &&
         country &&
-        from &&
-        to &&
-        starttime &&
-        endtime &&
-        postal_code &&
-        quantity &&
-        order_note
+        postalCode &&
+        quantity
+
       )
     ) {
       res

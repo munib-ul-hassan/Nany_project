@@ -25,7 +25,7 @@ router.post("/", upload.array("file"), (req, res) => {
       if (result) {
         res
           .status(200)
-          .send({ message: "Data already exist", success: false });
+          .send({ message: "first delete data then post", success: false });
       } else {
         req.body.sections = JSON.parse(req.body.sections);
         const { sections, text } = req.body;
