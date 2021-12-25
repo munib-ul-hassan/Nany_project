@@ -27,8 +27,9 @@ router.post("/", upload.array("file"), (req, res) => {
 
     for (var i = 0; i < Service.length; i++) {
       content.push({
-        text: Service[i].text || " ",
-        name: Service[i].name || " ",
+        heading: Service[i].heading || " ",
+        paragraph: Service[i].paragraph || " ",
+        btnLink: Service[i].btnLink || " ",
         image: req.files[i] ? req.files[i].path : " ",
       })
     }
