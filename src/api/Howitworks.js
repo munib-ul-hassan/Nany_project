@@ -27,6 +27,7 @@ router.post("/", upload.array("file"), (req, res) => {
           .status(200)
           .send({ message: "First delete data then post", success: false });
       } else {
+        console.log(req.body.works)
         req.body.works = JSON.parse(req.body.works);
         const { text, works } = req.body;
         content = [];

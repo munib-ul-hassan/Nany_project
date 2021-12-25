@@ -83,7 +83,10 @@ router.delete("/", (req, res) => {
     } else {
       service.findOne({ _id: id }, (err, result) => {
         if (result) {
-          fs.unlink(result.image, () => { });
+          result.Service.map((item) => {
+
+            fs.unlink(item.image, () => { });
+          })
           service.deleteOne({ _id: id }, (err, result) => {
             if (!result) {
               res.status(200).send({ message: err.message, success: false });

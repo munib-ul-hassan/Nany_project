@@ -45,8 +45,10 @@ const category = require("./src/api/Category");
 const product = require("./src/api/Product");
 const order = require("./src/api/Order");
 const Websetting = require("./src/api/Websetting");
+const booking = require("./src/api/Booking");
 
 //set path
+
 app.use("/uploads", express.static("uploads"));
 app.use("/topheader", topheader);
 app.use("/auth", authentication);
@@ -62,6 +64,7 @@ app.use("/category", category);
 app.use("/product", product);
 app.use("/order", order);
 app.use("/Websetting", Websetting);
+app.use("/booking", booking);
 
 //
 app.use(function (req, res, next) {

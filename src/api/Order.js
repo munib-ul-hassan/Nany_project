@@ -13,10 +13,7 @@ router.post("/", (req, res) => {
       mobile,
       address,
       city,
-      from,
-      to,
-      starttime,
-      endtime,
+      user,
       country,
       postalCode,
       quantity,
@@ -33,7 +30,8 @@ router.post("/", (req, res) => {
         city &&
         country &&
         postalCode &&
-        quantity
+        quantity &&
+        user
 
       )
     ) {
@@ -99,60 +97,13 @@ router.delete("/", (req, res) => {
     res.status(400).json({ message: err.message, success: false });
   }
 });
-router.get("/", verifytoken, (req, res) => {
+router.get("/", (req, res) => {
   try {
-    const { email, by_status } = req.query;
-    if (email && by_status) {
 
+
+    if (!req.query) {
       order.find(
-        {
-          email: {
-            $regex: email,
-            $options: "i",
-          },
-          status: by_status,
-        },
-        (err, result) => {
-          if (!result) {
-            res.status(200).send({ message: err.message, success: false });
-          } else {
-            res.status(200).send({
-              message: "Data get Successfully",
-              success: true,
-              data: result,
-            });
-          }
-        }
-      );
-    } else if (email) {
-
-
-      order.find(
-        {
-          email: {
-            $regex: email,
-            $options: "i",
-          },
-        },
-        (err, result) => {
-          if (!result) {
-            res.status(200).send({ message: err.message, success: false });
-          } else {
-            res.status(200).send({
-              message: "Data get Successfully",
-              success: true,
-              data: result,
-            });
-          }
-        }
-      );
-    } else if (by_status) {
-
-
-      order.find(
-        {
-          status: by_status
-        },
+        req.query,
         (err, result) => {
           if (!result) {
             res.status(200).send({ message: err.message, success: false });
@@ -166,18 +117,22 @@ router.get("/", verifytoken, (req, res) => {
         }
       );
     } else {
+      order.find(
+        {
 
-      order.find({}, (err, result) => {
-        if (!result) {
-          res.status(200).send({ message: err.message, success: false });
-        } else {
-          res.status(200).send({
-            message: "Data get Successfully",
-            success: true,
-            data: result,
-          });
+        },
+        (err, result) => {
+          if (!result) {
+            res.status(200).send({ message: err.message, success: false });
+          } else {
+            res.status(200).send({
+              message: "Data get Successfully",
+              success: true,
+              data: result,
+            });
+          }
         }
-      });
+      );
     }
   } catch (err) {
     res.status(400).json({ message: err.message, success: false });

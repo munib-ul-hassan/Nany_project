@@ -5,6 +5,7 @@ const tokengenerate = ({ user }) => {
     expiresIn: "2h",
   }));
 };
+
 const verifytoken = (req, res, next) => {
   let token =
     req.body.authorization ||

@@ -21,6 +21,8 @@ var upload = multer({ storage: storage });
 
 router.post("/", upload.array("file"), (req, res) => {
   try {
+    // console.log(req.files)
+    console.log(req.body.sections)
     about.findOne({}, (err, result) => {
       if (result) {
         res
@@ -36,7 +38,6 @@ router.post("/", upload.array("file"), (req, res) => {
           req.body.sections[2].image = req.files[3] ? req.files[3].path : "";
           req.body.sections[3].image = req.files[4] ? req.files[4].path : "";
         }
-
 
         if (!(sections && text)) {
           res

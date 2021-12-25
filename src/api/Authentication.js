@@ -131,7 +131,6 @@ router.post("/register/manager", verifyadmintoken, upload.array("file"), (req, r
 router.post("/register/admin", upload.array("file"), (req, res) => {
   try {
     const { name, email, password, } = req.body;
-
     var re = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
     if (req.files.length > 0) {
       req.body.file = req.files[0] ? req.files[0].path : "";
