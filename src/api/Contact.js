@@ -4,21 +4,46 @@ const contact = require("../models/Contact");
 
 router.post("/", (req, res) => {
   try {
-    const { first_name, last_name, email, mobile, website, message } = req.body;
+    const { text,
+      mobile,
+      email,
+      address,
+      website,
+      facebook,
+      instagram,
+      twitter,
+      linkedin } = req.body;
 
-    if (!(first_name && last_name && email && mobile && website && message)) {
+    if (!(text &&
+      mobile &&
+      email &&
+      address &&
+      website &&
+      facebook &&
+      instagram &&
+      twitter &&
+      linkedin)) {
       res
         .status(200)
         .send({ message: "All input is required", success: false });
     } else {
-      const Contact = new contact(req.body);
-      Contact.save().then((item) => {
-        res.status(200).send({
-          message: "Data save into Database",
-          data: item,
-          success: true,
-        });
-      });
+      contact.find({}, (err, result) => {
+        if (result) {
+          res
+            .status(200)
+            .send({ message: "first delete then post data", success: false });
+        } else {
+
+          const Contact = new contact(req.body);
+          Contact.save().then((item) => {
+            res.status(200).send({
+              message: "Data save into Database",
+              data: item,
+              success: true,
+            });
+          });
+        }
+      })
     }
   } catch (err) {
     res.status(400).json({ message: err.message, success: false });

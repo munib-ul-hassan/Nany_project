@@ -1,12 +1,15 @@
 const mongoose = require("mongoose");
 const contact = mongoose.Schema(
   {
-    first_name: String,
-    last_name: String,
+    text: String,
+    mobile: String,
     email: String,
-    mobile: Number,
+    address: String,
     website: String,
-    message: String,
+    facebook: String,
+    instagram: String,
+    twitter: String,
+    linkedin: String,
   },
   { timestamps: true }
 );

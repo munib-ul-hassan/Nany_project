@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const cateogry = require("../models/Category");
+
 const path = require("path");
 const category = require("../models/Category");
 const fs = require("fs");
@@ -32,7 +32,7 @@ router.post("/", upload.array("file"), (req, res) => {
         .status(200)
         .send({ message: "All input is required", success: false });
     } else {
-      const Category = new cateogry(req.body);
+      const Category = new category(req.body);
       Category.save().then((item) => {
         res.status(200).send({
           message: "Data save into Database",
@@ -55,7 +55,7 @@ router.put("/:id", upload.array("file"), (req, res) => {
     if (!id) {
       res.status(200).send({ message: "id is not specify", success: false });
     } else {
-      cateogry.updateOne({ _id: id }, req.body, (err, result) => {
+      category.updateOne({ _id: id }, req.body, (err, result) => {
         if (err) {
           res.status(200).send({ message: err.message, success: false });
         } else {
@@ -77,10 +77,10 @@ router.delete("/", (req, res) => {
     if (!id) {
       res.status(200).send({ message: "id is not specify", success: false });
     } else {
-      cateogry.findeOne({ _id: id }, (err, result) => {
+      category.findeOne({ _id: id }, (err, result) => {
         if (result) {
           fs.unlink(result.image, () => { });
-          cateogry.deleteOne({ _id: id }, (err, val) => {
+          category.deleteOne({ _id: id }, (err, val) => {
             if (!val) {
               res.status(200).send({ message: err.message, success: false });
             } else {

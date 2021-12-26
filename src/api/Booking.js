@@ -66,7 +66,7 @@ router.put("/:id", verifytoken, (req, res) => {
         if (!id) {
             res.status(200).send({ message: "id is not specify", success: false });
         } else {
-            boking.findone({ _id: id }, (err, result) => {
+            booking.findone({ _id: id }, (err, result) => {
                 if (!result) {
                     res.status(200).send({ message: "Data not exist", success: false });
                 } else {
@@ -95,7 +95,7 @@ router.delete("/", (req, res) => {
         if (!id) {
             res.status(200).send({ message: "id is not specify", success: false });
         } else {
-            boking.findone({ _id: id }, (err, result) => {
+            booking.findone({ _id: id }, (err, result) => {
                 if (!result) {
                     res.status(200).send({ message: "Data not exist", success: false });
                 } else {

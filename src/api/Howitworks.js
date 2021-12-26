@@ -91,7 +91,10 @@ router.delete("/", (req, res) => {
     } else {
       HIwork.findOne({ _id: id }, (err, result) => {
         if (result) {
-          fs.unlink(result.icon, () => { });
+          result.works.map((item) => {
+
+            fs.unlink(item.icon, () => { });
+          })
           HIwork.deleteOne({ _id: id }, (err, result) => {
             if (!result) {
               res.status(200).send({ message: err.message, success: false });
