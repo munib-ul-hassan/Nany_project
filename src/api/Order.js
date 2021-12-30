@@ -13,7 +13,7 @@ router.post("/", (req, res) => {
       mobile,
       address,
       city,
-      user,
+
       country,
       postalCode,
       quantity,
@@ -30,8 +30,8 @@ router.post("/", (req, res) => {
         city &&
         country &&
         postalCode &&
-        quantity &&
-        user
+        quantity
+
 
       )
     ) {

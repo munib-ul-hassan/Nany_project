@@ -64,6 +64,7 @@ router.post("/", upload.array("file"), (req, res) => {
 router.put("/:id", (req, res) => {
   try {
     const { id } = req.params;
+    console.log(id)
     if (!id) {
       res.status(200).send({ message: "id is not specify", success: false });
     } else {

@@ -21,16 +21,10 @@ var upload = multer({ storage: storage });
 
 router.post("/", upload.array("file"), (req, res) => {
   try {
-    const { Bt1, Bt2, Pt1, Pt2 } = req.body;
+
     if (req.files.length > 0) {
       req.body.Bgimage = req.files[0].path;
-      req.body.Primage = req.files[1].path;
-    }
-    if (!(Bt1 && Bt2 && Pt1 && Pt2)) {
-      res
-        .status(200)
-        .send({ message: "All input is required", success: false });
-    } else {
+
       const Banner = new banner(req.body);
       Banner.save().then((item) => {
         res.status(200).send({
@@ -40,28 +34,43 @@ router.post("/", upload.array("file"), (req, res) => {
         });
       });
     }
+    else {
+      res
+        .status(200)
+        .send({ message: "All input is required", success: false });
+    }
   } catch (err) {
     res.status(400).json({ message: err.message, success: false });
   }
 });
-router.put("/:id", (req, res) => {
+router.put("/:id", upload.array('file'), (req, res) => {
   try {
-    const { id } = req.params;
+
+    const { id, } = req.params;
 
     if (!id) {
       res.status(200).send({ message: "id is not specify", success: false });
     } else {
-      banner.updateOne({ _id: id }, req.body, (err, result) => {
-        if (err) {
-          res.status(200).send({ message: err.message, success: false });
-        } else {
-          res.status(200).send({
-            message: "Data updated Successfully",
-            success: true,
-            data: result,
+      banner.findById({_id:id},(err,result)=>{
+        if(result){
+          fs.unlink(result.Bgimage,()=>{})
+          req.body.image = req.files[0].path
+          banner.updateOne({ _id: id }, req.body, (err, result) => {
+            if (err) {
+              res.status(200).send({ message: err.message, success: false });
+            } else {
+              res.status(200).send({
+                message: "Data updated Successfully",
+                success: true,
+                data: result,
+              });
+            }
           });
+        }else{
+      res.status(200).send({ message: "id is not specify", success: false });
+
         }
-      });
+      })
     }
   } catch (err) {
     res.status(400).json({ message: err.message, success: false });

@@ -47,6 +47,7 @@ const order = require("./src/api/Order");
 const Websetting = require("./src/api/Websetting");
 const booking = require("./src/api/Booking");
 const query = require('./src/api/Queries')
+const splashscreen = require('./src/api/SplashScreen');
 //set path
 
 app.use("/uploads", express.static("uploads"));
@@ -66,6 +67,7 @@ app.use("/order", order);
 app.use("/Websetting", Websetting);
 app.use("/booking", booking);
 app.use('/query', query);
+app.use('/splashscreen', splashscreen)
 //
 app.use(function (req, res, next) {
   res.header("Access-Control-Allow-Headers", "*")

@@ -77,7 +77,7 @@ router.delete("/", (req, res) => {
     if (!id) {
       res.status(200).send({ message: "id is not specify", success: false });
     } else {
-      category.findeOne({ _id: id }, (err, result) => {
+      category.find({ _id: id }, (err, result) => {
         if (result) {
           fs.unlink(result.image, () => { });
           category.deleteOne({ _id: id }, (err, val) => {
