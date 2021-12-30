@@ -22,29 +22,23 @@ var upload = multer({ storage: storage });
 
 router.post("/", upload.array("file"), (req, res) => {
     try {
-        splashscreen.find({}, (err, result) => {
-
-            if (result.length > 0) {
-                res
-                    .status(200)
-                    .send({ message: "First delete data then post", success: false });
-            } else {
-
-                req.body.image = req.files[0].path
-
-
-
-                const Splashscreen = new splashscreen(req.body);
-                Splashscreen.save().then((item) => {
-                    res.status(200).send({
-                        message: "Data save into Database",
-                        data: item,
-                        success: true,
-                    });
+        if (req.files > 0) {
+            req.body.image = req.files[0].path
+            const Splashscreen = new splashscreen(req.body);
+            Splashscreen.save().then((item) => {
+                res.status(200).send({
+                    message: "Data save into Database",
+                    data: item,
+                    success: true,
                 });
-            }
+            });
+        } else {
+            res.status(200).json({ message: "first input image", success: false });
 
-        })
+        }
+
+
+
     } catch (err) {
         res.status(400).json({ message: err.message, success: false });
     }
