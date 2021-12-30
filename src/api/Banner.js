@@ -51,9 +51,9 @@ router.put("/:id", upload.array('file'), (req, res) => {
     if (!id) {
       res.status(200).send({ message: "id is not specify", success: false });
     } else {
-      banner.findById({_id:id},(err,result)=>{
-        if(result){
-          fs.unlink(result.Bgimage,()=>{})
+      banner.findById({ _id: id }, (err, result) => {
+        if (result) {
+          fs.unlink(result.Bgimage, () => { })
           req.body.image = req.files[0].path
           banner.updateOne({ _id: id }, req.body, (err, result) => {
             if (err) {
@@ -66,8 +66,8 @@ router.put("/:id", upload.array('file'), (req, res) => {
               });
             }
           });
-        }else{
-      res.status(200).send({ message: "id is not specify", success: false });
+        } else {
+          res.status(200).send({ message: "id is not specify", success: false });
 
         }
       })

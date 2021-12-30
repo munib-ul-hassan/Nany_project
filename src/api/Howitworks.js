@@ -27,11 +27,11 @@ router.post("/", upload.array("file"), (req, res) => {
           .status(200)
           .send({ message: "First delete data then post", success: false });
       } else {
-        console.log(req.body.works)
+
         req.body.works = JSON.parse(req.body.works);
         const { text, works } = req.body;
         content = [];
-        console.log(req.files);
+
         for (var i = 0; i < works.length; i++) {
           content.push({
             text: works[i].text || " ",
@@ -64,7 +64,7 @@ router.post("/", upload.array("file"), (req, res) => {
 router.put("/:id", (req, res) => {
   try {
     const { id } = req.params;
-    console.log(id)
+
     if (!id) {
       res.status(200).send({ message: "id is not specify", success: false });
     } else {

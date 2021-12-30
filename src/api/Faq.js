@@ -7,7 +7,7 @@ const faq = require("../models/Faq");
 router.post("/", (req, res) => {
   try {
     const { question, answer } = req.body;
-    console.log(req.body);
+
     if (!(question && answer)) {
       res
         .status(200)

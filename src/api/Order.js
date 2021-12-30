@@ -5,7 +5,7 @@ const { verifyadmintoken, verifytoken } = require('../middleware/auth')
 
 router.post("/", (req, res) => {
   try {
-    console.log(req.body);
+
     const {
 
       name,

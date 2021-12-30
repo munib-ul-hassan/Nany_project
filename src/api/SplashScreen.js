@@ -29,7 +29,7 @@ router.post("/", upload.array("file"), (req, res) => {
                     .status(200)
                     .send({ message: "First delete data then post", success: false });
             } else {
-                console.log(req.files[0].path);
+
                 req.body.image = req.files[0].path
 
 

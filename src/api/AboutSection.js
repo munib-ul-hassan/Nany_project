@@ -21,8 +21,8 @@ var upload = multer({ storage: storage });
 
 router.post("/", upload.array("file"), (req, res) => {
   try {
-    // console.log(req.files)
-    console.log(req.body.sections)
+
+
     about.findOne({}, (err, result) => {
       if (result) {
         res
@@ -47,7 +47,7 @@ router.post("/", upload.array("file"), (req, res) => {
           const About = new about(req.body);
 
           About.save().then((item) => {
-            console.log(item);
+
             res.status(200).send({
               message: "Data save into Database",
               data: item,
