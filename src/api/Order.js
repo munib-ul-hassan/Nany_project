@@ -1,54 +1,79 @@
 const express = require("express");
 const router = express.Router();
-const order = require("../models/Order");
+const Order = require("../models/Order");
+const nodemailer = require("nodemailer");
 const { verifyadmintoken, verifytoken } = require('../middleware/auth')
 
-router.post("/", (req, res) => {
+router.post("/", async (req, res) => {
   try {
-
-    const {
-
-      name,
-      email,
-      mobile,
-      address,
-      city,
-
-      country,
-      postalCode,
-      quantity,
-      order_note,
-    } = req.body;
-
-    if (
-      !(
-
-        name &&
-        email &&
-        mobile &&
-        address &&
-        city &&
-        country &&
-        postalCode &&
-        quantity
-
-
-      )
-    ) {
+    const { order, product } = req.body;
+    var re = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+    if (!(order && product)) {
       res
         .status(200)
         .send({ message: "All input is required", success: false });
-    } else {
-      req.body.status = "Pending"
-      const Order = new order(req.body);
-      Order.save().then((item) => {
-        res.status(200).send({
-          message: "Data save into Database",
-          data: item,
-          success: true,
-        });
-      });
-    }
+    } else
+      if (!re.test(email)) {
+        res.status(422).send({ message: "invlaid Email", success: false });
+      } else {
+        const count = 0
+        product.map((item, index) => {
+          product[index] = Object.assign(order, {
+            product: item._id,
+            quantity: item.quantity,
+            price: item.price,
+            color: item.color
+          })
+          product[index].status = "Pending"
+
+          const Booking = new Order(product[index]);
+          Booking.save().then((item) => {
+            if (item) {
+              count++;
+            } else {
+            }
+          })
+        })
+        ///////////////////////////////
+        // let testAccount = await nodemailer.createTestAccount();
+        // let transporter = nodemailer.createTransport({
+        //   host: "smtp.ethereal.email",
+        //   port: 587,
+        //   secure: false, // true for 465, false for other ports
+        //   auth: {
+        //     user: process.env.email, // generated ethereal user
+        //     pass: process.env.password, // generated ethereal password
+        //   },
+        // });
+        // let info = await transporter.sendMail({
+        //   from: process.env.email, // sender address
+        //   to: req.body.order.email, // list of receivers
+        //   subject: "Hello ✔", // Subject line
+        //   text: "Hello world?", // plain text body
+        //   html: "<b>Hello world?</b>", // html body
+        // });
+
+        // console.log("Message sent: %s", info.messageId);
+        // // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@example.com>
+
+        // // Preview only available when sending through an Ethereal account
+        // console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
+        ///////////////////////////////
+        if (count == product.length) {
+          res.status(200).send({
+            message: "Data save into Database",
+            success: true,
+          });
+        } else {
+
+          res.status(200).send({
+            message: product.length - count + " orders are saved other was rejected",
+
+            success: true,
+          });
+        }
+      }
+
   } catch (err) {
     res.status(400).json({ message: err.message, success: false });
   }
@@ -59,7 +84,7 @@ router.put("/:id", verifytoken, (req, res) => {
     if (!id) {
       res.status(200).send({ message: "id is not specify", success: false });
     } else {
-      order.updateOne({ _id: id }, req.body, (err, result) => {
+      Order.updateOne({ _id: id }, req.body, (err, result) => {
         if (err) {
           res.status(200).send({ message: err.message, success: false });
         } else {
@@ -81,7 +106,7 @@ router.delete("/", (req, res) => {
     if (!id) {
       res.status(200).send({ message: "id is not specify", success: false });
     } else {
-      order.deleteOne({ _id: id }, (err, result) => {
+      Order.deleteOne({ _id: id }, (err, result) => {
         if (!result) {
           res.status(200).send({ message: err.message, success: false });
         } else {
@@ -102,7 +127,7 @@ router.get("/", (req, res) => {
 
 
     if (!req.query) {
-      order.find(
+      Order.find(
         req.query,
         (err, result) => {
           if (!result) {
@@ -117,7 +142,7 @@ router.get("/", (req, res) => {
         }
       );
     } else {
-      order.find(
+      Order.find(
         {
 
         },
@@ -141,13 +166,13 @@ router.get("/", (req, res) => {
 router.put('/acceptorder/:id', (req, res) => {
   try {
     const { id } = req.params;
-    order.findOne({ _id: id }, (err, result) => {
+    Order.findOne({ _id: id }, (err, result) => {
       if (!result) {
         res.status(200).send({ message: "Invalid selection", success: false });
       } else {
 
 
-        order.updateOne({ _id: id }, { status: "Accepted" }, (err, value) => {
+        Order.updateOne({ _id: id }, { status: "Accepted" }, (err, value) => {
           if (err) {
             res.status(200).json({ message: err.message, success: false });
 
@@ -165,11 +190,11 @@ router.put('/acceptorder/:id', (req, res) => {
 router.put('/rejectorder/:id', (req, res) => {
   try {
     const { id } = req.params;
-    order.findOne({ _id: id }, (err, result) => {
+    Order.findOne({ _id: id }, (err, result) => {
       if (!result) {
         res.status(200).send({ message: "Invalid selection", success: false });
       } else {
-        order.updateOne({ _id: id }, { status: "Rejected" }, (err, value) => {
+        Order.updateOne({ _id: id }, { status: "Rejected" }, (err, value) => {
           if (err) {
             res.status(200).json({ message: err.message, success: false });
 
@@ -187,12 +212,12 @@ router.put('/rejectorder/:id', (req, res) => {
 router.put('/assignorder/:id', (req, res) => {
   try {
     const { id } = req.params;
-    order.findOne({ _id: id }, (err, result) => {
+    Order.findOne({ _id: id }, (err, result) => {
       if (!result) {
         res.status(200).send({ message: "Invalid selection", success: false });
       } else {
 
-        order.updateOne({ _id: id }, { status: "Assigned" }, (err, value) => {
+        Order.updateOne({ _id: id }, { status: "Assigned" }, (err, value) => {
           if (err) {
             res.status(200).json({ message: err.message, success: false });
 
@@ -233,11 +258,11 @@ router.put('/cancelorder/:id', (req, res) => {
 router.put('/completeorder/:id', verifytoken, (req, res) => {
   try {
     const { id } = req.params;
-    order.findOne({ _id: id }, (err, result) => {
+    Order.findOne({ _id: id }, (err, result) => {
       if (!result) {
         res.status(200).send({ message: "Invalid selection", success: false });
       } else {
-        order.updateOne({ _id: id }, { status: "Completed" }, (err, value) => {
+        Order.updateOne({ _id: id }, { status: "Completed" }, (err, value) => {
           if (err) {
             res.status(200).json({ message: err.message, success: false });
 
@@ -249,7 +274,6 @@ router.put('/completeorder/:id', verifytoken, (req, res) => {
     })
   } catch (err) {
     res.status(400).json({ message: err.message, success: false });
-
   }
 })
 
