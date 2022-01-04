@@ -147,7 +147,7 @@ router.get('/byid/:id',(req,res)=>{
   try{
     
 const {id} = req.params; 
-service.find({_id:id}, (err, result) => {
+service.findOne({_id:id}, (err, result) => {
   if (!result) {
     res.status(200).send({ message: err.message, success: false });
   } else {
