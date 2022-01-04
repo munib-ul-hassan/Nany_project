@@ -21,26 +21,18 @@ var upload = multer({ storage: storage });
 
 router.post("/", upload.array("file"), (req, res) => {
   try {
-    req.body.Service = JSON.parse(req.body.Service);
-    const { text, Service } = req.body;
-    content = [];
 
-    for (var i = 0; i < Service.length; i++) {
-      content.push({
-        heading: Service[i].heading || " ",
-        paragraph: Service[i].paragraph || " ",
-        btnLink: Service[i].btnLink || " ",
-        image: req.files[i] ? req.files[i].path : " ",
-      })
-    }
-
-    req.body.Service = content;
-
-    if (!(Service)) {
+    const {  heading,
+      paragraph,
+      btnLink,
+      } = req.body;
+        
+    req.body.image = req.files[0].path
+    if(!(heading,paragraph,btnLink)){
       res
-        .status(200)
-        .send({ message: "All input is required", success: false });
-    } else {
+      .status(200)
+      .send({ message: "All input is required", success: false });
+    }else{  
       const Service = new service(req.body);
       Service.save().then((item) => {
         res.status(200).send({
@@ -54,9 +46,13 @@ router.post("/", upload.array("file"), (req, res) => {
     res.status(400).json({ message: err.message, success: false });
   }
 });
-router.put("/:id", (req, res) => {
+router.put("/:id",upload.array('file'), (req, res) => {
   try {
+
     const { id } = req.params;
+    if(res.files){
+      req.body.image=req.files[0].path
+    }
     if (!id) {
       res.status(200).send({ message: "id is not specify", success: false });
     } else {
@@ -84,10 +80,8 @@ router.delete("/", (req, res) => {
     } else {
       service.findOne({ _id: id }, (err, result) => {
         if (result) {
-          result.Service.map((item) => {
-
-            fs.unlink(item.image, () => { });
-          })
+          fs.unlink(result.image, () => { });
+          
           service.deleteOne({ _id: id }, (err, result) => {
             if (!result) {
               res.status(200).send({ message: err.message, success: false });
@@ -126,7 +120,7 @@ router.get("/", (req, res) => {
             res.status(200).send({
               message: "Data get Successfully",
               success: true,
-              data: result,
+              data: result[0],
             });
           }
         }
@@ -148,4 +142,26 @@ router.get("/", (req, res) => {
     res.status(400).json({ message: err.message, success: false });
   }
 });
+
+router.get('/byid/:id',(req,res)=>{
+  try{
+    
+const {id} = req.params; 
+service.find({_id:id}, (err, result) => {
+  if (!result) {
+    res.status(200).send({ message: err.message, success: false });
+  } else {
+    res.status(200).send({
+      message: "Data get Successfully",
+      success: true,
+      data: result,
+    });
+  }
+});
+
+
+  }catch (err) {
+    res.status(400).json({ message: err.message, success: false });
+  }
+})
 module.exports = router;

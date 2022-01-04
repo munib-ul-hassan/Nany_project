@@ -1,9 +1,10 @@
 const mongoose = require("mongoose");
 const service = mongoose.Schema(
   {
-    text: String,
-    Service: [],
-
+    heading:String,
+    paragraph:String,
+    btnLink:String,
+    image:String,
   },
   { timestamps: true }
 );
