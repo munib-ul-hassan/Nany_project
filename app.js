@@ -68,14 +68,15 @@ app.use("/Websetting", Websetting);
 app.use("/booking", booking);
 app.use('/query', query);
 app.use('/splashscreen', splashscreen)
-//
+
+
 app.use(function (req, res, next) {
   res.header("Access-Control-Allow-Headers", "*")
 })
 app.use("/uploads", express.static("uploads"));
 //Data base connection
 var url = process.env.MONGO_URL;
-// var url = "mongodb://localhost:27017/Mongodb";
+
 mongoose.connect(
   url,
   { useUnifiedTopology: true, useNewUrlParser: true },
@@ -88,6 +89,7 @@ mongoose.connect(
     }
   }
 );
+
 
 //Creating Server
 const port = process.env.PORT || 4000;
