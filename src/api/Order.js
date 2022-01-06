@@ -7,7 +7,7 @@ const path = require('path')
 const fs = require('fs')
 
 const { verifyadmintoken, verifytoken } = require('../middleware/auth')
-const pdftemplate = require('../../template/invoic')
+const pdftemplate = require('../../template/invoice')
 const pdf = require('html-pdf');
 
 
@@ -21,15 +21,19 @@ router.post("/", async (req, res) => {
       res
         .status(200)
         .send({ message: "All input is required", success: false });
-    } else    
+      } else    
       if (!re.test(order.email)) {
         res.status(422).send({ message: "invlaid Email", success: false });
       } else {
         var count = 0
+        fs.unlink('./invoice.pdf',()=>{})
         const invoiceid = await (await Order.count({}))
-        req.body.invoice = invoiceid
-        //make pdf from data 
-        pdf.create(pdftemplate(req.body),{}).toFile(__dirname+'/Invoice.pdf',(err)=>{
+        req.body.id = invoiceid
+        
+        
+        
+        
+        pdf.create(pdftemplate(req.body),{}).toFile(__dirname+'/invoice.pdf',(err)=>{
       if(err){
           res.status(200).send({message:err,success:false})
       }else{
@@ -47,6 +51,7 @@ router.post("/", async (req, res) => {
             color: item.color
           })
           product[index].status = "Pending"
+          
 //save in to database
           const Booking = new Order(product[index]);
           Booking.save().then((item) => {
@@ -82,15 +87,15 @@ router.post("/", async (req, res) => {
 
           attachments:[
             {
-              file:"Invoice.pdf",
-              path:__dirname+'/Invoice.pdf'              
+              file:"invoice.pdf",
+              path:__dirname+'/invoice.pdf'              
             }
           ]
         }
 
         await transporter.sendMail(mailOption,(err,info)=>{
           if(err){
-            
+            res.send(err);
           }else{
             
             if (count == product.length) {
