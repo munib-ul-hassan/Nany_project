@@ -22,7 +22,7 @@ var upload = multer({ storage: storage });
 
 router.post("/", upload.array("file"), (req, res) => {
     try {
-        if (req.files > 0) {
+        if (req.files.length > 0) {
             req.body.image = req.files[0].path
             const Splashscreen = new splashscreen(req.body);
             Splashscreen.save().then((item) => {

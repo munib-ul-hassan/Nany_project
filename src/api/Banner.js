@@ -86,7 +86,7 @@ router.delete("/", (req, res) => {
       banner.findOne({ _id: id }, (err, result) => {
         if (result) {
           fs.unlink(result.Bgimage, () => { });
-          fs.unlink(result.Primage, () => { });
+
 
           banner.deleteOne({ _id: id }, (err, result) => {
             if (!result) {
