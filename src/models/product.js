@@ -10,8 +10,8 @@ const product = mongoose.Schema(
     ],
     image: String,
     price: Number,
-    image: String,
-    quantity: Number,
+    
+    
     color: Array,
     instock: Boolean,
     quantity: Number,

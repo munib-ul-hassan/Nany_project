@@ -36,9 +36,6 @@ router.post("/", upload.array("file"), (req, res) => {
             res.status(200).json({ message: "first input image", success: false });
 
         }
-
-
-
     } catch (err) {
         res.status(400).json({ message: err.message, success: false });
     }
