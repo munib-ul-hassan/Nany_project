@@ -7,12 +7,7 @@ const fs = require("fs");
 
 
 const { getStorage  } = require('firebase-admin/storage');
-
-
-
 const bucket = getStorage().bucket('gs://nany-ffb26.appspot.com/')
-
-
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
@@ -28,11 +23,12 @@ const storage = multer.diskStorage({
 
 var upload = multer({ storage: storage });
 
-router.post("/", upload.array("file"), async (req, res) => {
+router.post("/", upload.single("file"), async (req, res) => {
     try {
         if (req.files.length > 0) {
-            await bucket.upload(req.file[0].path)
-            req.body.image = req.files[0].filename
+            
+            await bucket.upload(req.file.path)
+            req.body.image = req.file.filename
             const Splashscreen = new splashscreen(req.body);
             Splashscreen.save().then((item) => {
                 res.status(200).send({
@@ -49,7 +45,7 @@ router.post("/", upload.array("file"), async (req, res) => {
         res.status(400).json({ message: err.message, success: false });
     }
 });
-router.put("/:id", upload.array("file"), (req, res) => {
+router.put("/:id", upload.array("file"), async (req, res) => {
     try {
         const { id } = req.params;
         if (!id) {
@@ -76,7 +72,7 @@ router.put("/:id", upload.array("file"), (req, res) => {
         res.status(400).json({ message: err.message, success: false });
     }
 });
-router.delete("/", (req, res) => {
+router.delete("/", async (req, res) => {
     try {
         const { id } = req.query;
         if (!id) {
@@ -102,7 +98,7 @@ router.delete("/", (req, res) => {
         res.status(400).json({ message: err.message, success: false });
     }
 });
-router.get("/", (req, res) => {
+router.get("/", async (req, res) => {
     try {
         splashscreen.find(
             {

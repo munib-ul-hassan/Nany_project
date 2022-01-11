@@ -5,6 +5,9 @@ const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
 
+const { getStorage  } = require('firebase-admin/storage');
+const bucket = getStorage().bucket('gs://nany-ffb26.appspot.com/')
+
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, "uploads/Websetting/");
@@ -20,7 +23,7 @@ const storage = multer.diskStorage({
 
 var upload = multer({ storage: storage });
 
-router.post("/", upload.array("file"), (req, res) => {
+router.post("/", upload.array("file"), async (req, res) => {
   try {
     const {
       W_name,
@@ -38,8 +41,10 @@ router.post("/", upload.array("file"), (req, res) => {
     }
 
     if (req.files.length > 0) {
-      req.body.H_Logo = req.files[0] ? req.files[0].path : "";
-      req.body.F_Logo = req.files[1] ? req.files[1].path : "";
+      await bucket.upload(req.files[0].path)
+      await bucket.upload(req.files[1].path)
+      req.body.H_Logo = req.files[0] ? req.files[0].filename : ""; 
+      req.body.F_Logo = req.files[1] ? req.files[1].filename : "";
     }
     if (
       !(
@@ -71,7 +76,7 @@ router.post("/", upload.array("file"), (req, res) => {
   }
 });
 
-router.put("/:id", (req, res) => {
+router.put("/:id", async (req, res) => {
   try {
     const { id } = req.params;
     if (!id) {
@@ -100,7 +105,7 @@ router.put("/:id", (req, res) => {
     res.status(400).json({ message: err.message, success: false });
   }
 });
-router.delete("/", (req, res) => {
+router.delete("/", async (req, res) => {
   try {
     const { id } = req.query;
     if (!id) {
@@ -130,7 +135,7 @@ router.delete("/", (req, res) => {
     res.status(400).json({ message: err.message, success: false });
   }
 });
-router.get("/", (req, res) => {
+router.get("/", async (req, res) => {
   try {
     const { Search } = req.query;
     if (Search) {

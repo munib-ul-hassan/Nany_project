@@ -3,7 +3,7 @@ const router = express.Router();
 const booking = require("../models/Booking");
 const { verifyadmintoken, verifytoken } = require('../middleware/auth')
 
-router.post("/", (req, res) => {
+router.post("/", async (req, res) => {
     try {
 
         const {
@@ -60,7 +60,7 @@ router.post("/", (req, res) => {
         res.status(400).json({ message: err.message, success: false });
     }
 });
-router.put("/:id", verifytoken, (req, res) => {
+router.put("/:id", verifytoken, async (req, res) => {
     try {
         const { id } = req.params;
         if (!id) {
@@ -89,7 +89,7 @@ router.put("/:id", verifytoken, (req, res) => {
         res.status(400).json({ message: err.message, success: false });
     }
 });
-router.delete("/", (req, res) => {
+router.delete("/", async (req, res) => {
     try {
         const { id } = req.query;
         if (!id) {
@@ -118,7 +118,7 @@ router.delete("/", (req, res) => {
         res.status(400).json({ message: err.message, success: false });
     }
 });
-router.get("/", verifytoken, (req, res) => {
+router.get("/", verifytoken, async (req, res) => {
     try {
         if (!req.query) {
             booking.find({}, (err, result) => {
@@ -151,7 +151,7 @@ router.get("/", verifytoken, (req, res) => {
     }
 });
 
-router.put('/acceptbooking/:id', (req, res) => {
+router.put('/acceptbooking/:id', async (req, res) => {
     try {
         const { id } = req.params;
         booking.findOne({ _id: id }, (err, result) => {
@@ -175,7 +175,7 @@ router.put('/acceptbooking/:id', (req, res) => {
 
     }
 })
-router.put('/rejectbooking/:id', (req, res) => {
+router.put('/rejectbooking/:id', async (req, res) => {
     try {
         const { id } = req.params;
         booking.findOne({ _id: id }, (err, result) => {
@@ -197,7 +197,7 @@ router.put('/rejectbooking/:id', (req, res) => {
 
     }
 })
-router.put('/assignbooking/:id', (req, res) => {
+router.put('/assignbooking/:id', async (req, res) => {
     try {
         const { id } = req.params;
         booking.findOne({ _id: id }, (err, result) => {
@@ -217,7 +217,7 @@ router.put('/assignbooking/:id', (req, res) => {
         res.status(400).json({ message: err.message, success: false });
     }
 })
-router.put('/cancelbooking/:id', (req, res) => {
+router.put('/cancelbooking/:id', async (req, res) => {
     try {
         const { id } = req.params;
         booking.findOne({ _id: id }, (err, result) => {
@@ -238,7 +238,7 @@ router.put('/cancelbooking/:id', (req, res) => {
         res.status(400).json({ message: err.message, success: false });
     }
 })
-router.put('/completebooking/:id', verifytoken, (req, res) => {
+router.put('/completebooking/:id', verifytoken, async (req, res) => {
     try {
         const { id } = req.params;
         booking.findOne({ _id: id }, (err, result) => {

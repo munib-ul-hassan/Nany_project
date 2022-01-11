@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const price = require("../models/Pricing");
 
-router.post("/", (req, res) => {
+router.post("/", async (req, res) => {
   try {
     const { text, package } = req.body;
 
@@ -37,7 +37,7 @@ router.post("/", (req, res) => {
     res.status(400).json({ message: err.message, success: false });
   }
 });
-router.put("/:id", (req, res) => {
+router.put("/:id", async (req, res) => {
   try {
     const { id } = req.params;
     if (!id) {
@@ -59,7 +59,7 @@ router.put("/:id", (req, res) => {
     res.status(400).json({ message: err.message, success: false });
   }
 });
-router.delete("/", (req, res) => {
+router.delete("/", async (req, res) => {
   try {
     const { id } = req.query;
     if (!id) {
@@ -81,7 +81,7 @@ router.delete("/", (req, res) => {
     res.status(400).json({ message: err.message, success: false });
   }
 });
-router.get("/", (req, res) => {
+router.get("/", async (req, res) => {
   try {
     const { Search } = req.query;
     if (Search) {

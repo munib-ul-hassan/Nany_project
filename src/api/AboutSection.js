@@ -5,6 +5,10 @@ const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
 
+const { getStorage  } = require('firebase-admin/storage');
+
+const bucket = getStorage().bucket('gs://nany-ffb26.appspot.com/')
+
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, "uploads/about/");
@@ -19,7 +23,7 @@ const storage = multer.diskStorage({
 
 var upload = multer({ storage: storage });
 
-router.post("/", upload.array("file"), (req, res) => {
+router.post("/", upload.array("file"), async (req, res) => {
   try {
 
 
@@ -32,11 +36,18 @@ router.post("/", upload.array("file"), (req, res) => {
         req.body.sections = JSON.parse(req.body.sections);
         const { sections, text } = req.body;
         if (req.files.length > 0) {
-          req.body.video = req.files[0] ? req.files[0].path : "";
-          req.body.sections[0].image = req.files[1] ? req.files[1].path : "";
-          req.body.sections[1].image = req.files[2] ? req.files[2].path : "";
-          req.body.sections[2].image = req.files[3] ? req.files[3].path : "";
-          req.body.sections[3].image = req.files[4] ? req.files[4].path : "";
+        req.files.map(async (item)=>{
+          await bucket.upload(item.path)
+
+        })  
+
+            req.body.image = req.files[0].filename
+
+          req.body.video = req.files[0] ? req.files[0].filename : "";
+          req.body.sections[0].image = req.files[1] ? req.files[1].filename : "";
+          req.body.sections[1].image = req.files[2] ? req.files[2].filename : "";
+          req.body.sections[2].image = req.files[3] ? req.files[3].filename : "";
+          req.body.sections[3].image = req.files[4] ? req.files[4].filename : "";
         }
 
         if (!(sections && text)) {
@@ -62,7 +73,7 @@ router.post("/", upload.array("file"), (req, res) => {
     res.status(400).json({ message: err.message, success: false });
   }
 });
-router.put("/:id", (req, res) => {
+router.put("/:id", async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -85,7 +96,7 @@ router.put("/:id", (req, res) => {
     res.status(400).json({ message: err.message, success: false });
   }
 });
-router.delete("/", (req, res) => {
+router.delete("/", async (req, res) => {
   try {
     const { id } = req.query;
     if (!id) {
@@ -118,7 +129,7 @@ router.delete("/", (req, res) => {
     res.status(400).json({ message: err.message, success: false });
   }
 });
-router.get("/", (req, res) => {
+router.get("/", async (req, res) => {
   try {
     const { Search } = req.query;
     if (Search) {

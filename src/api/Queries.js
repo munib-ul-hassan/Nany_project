@@ -3,7 +3,7 @@ const router = express.Router();
 const queries = require("../models/Queries");
 const { verifyadmintoken, verifytoken } = require('../middleware/auth')
 
-router.post("/", (req, res) => {
+router.post("/", async (req, res) => {
     try {
         const {
             first_name,
@@ -44,7 +44,7 @@ router.post("/", (req, res) => {
         res.status(400).json({ message: err.message, success: false });
     }
 });
-router.put("/:id", verifytoken, (req, res) => {
+router.put("/:id", verifytoken, async (req, res) => {
     try {
         const { id } = req.params;
         if (!id) {
@@ -73,7 +73,7 @@ router.put("/:id", verifytoken, (req, res) => {
         res.status(400).json({ message: err.message, success: false });
     }
 });
-router.delete("/", (req, res) => {
+router.delete("/", async (req, res) => {
     try {
         const { id } = req.query;
         if (!id) {
@@ -102,7 +102,7 @@ router.delete("/", (req, res) => {
         res.status(400).json({ message: err.message, success: false });
     }
 });
-router.get("/", (req, res) => {
+router.get("/", async (req, res) => {
     try {
         if (!req.query) {
             queries.find({}, (err, result) => {

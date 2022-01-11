@@ -123,7 +123,7 @@ router.post("/", async (req, res) => {
     res.status(400).json({ message: err.message, success: false });
   }
 });
-router.put("/:id", verifytoken, (req, res) => {
+router.put("/:id", verifytoken, async (req, res) => {
   try {
     const { id } = req.params;
     if (!id) {
@@ -145,7 +145,7 @@ router.put("/:id", verifytoken, (req, res) => {
     res.status(400).json({ message: err.message, success: false });
   }
 });
-router.delete("/", (req, res) => {
+router.delete("/", async (req, res) => {
   try {
     const { id } = req.query;
     if (!id) {
@@ -167,7 +167,7 @@ router.delete("/", (req, res) => {
     res.status(400).json({ message: err.message, success: false });
   }
 });
-router.get("/", (req, res) => {
+router.get("/", async (req, res) => {
   try {
 
 
@@ -208,7 +208,7 @@ router.get("/", (req, res) => {
     res.status(400).json({ message: err.message, success: false });
   }
 });
-router.put('/acceptorder/:id', (req, res) => {
+router.put('/acceptorder/:id', async (req, res) => {
   try {
     const { id } = req.params;
     Order.findOne({ _id: id }, (err, result) => {
@@ -232,7 +232,7 @@ router.put('/acceptorder/:id', (req, res) => {
 
   }
 })
-router.put('/rejectorder/:id', (req, res) => {
+router.put('/rejectorder/:id', async (req, res) => {
   try {
     const { id } = req.params;
     Order.findOne({ _id: id }, (err, result) => {
@@ -254,7 +254,7 @@ router.put('/rejectorder/:id', (req, res) => {
 
   }
 })
-router.put('/assignorder/:id', (req, res) => {
+router.put('/assignorder/:id', async (req, res) => {
   try {
     const { id } = req.params;
     Order.findOne({ _id: id }, (err, result) => {
@@ -277,7 +277,7 @@ router.put('/assignorder/:id', (req, res) => {
 
   }
 })
-router.put('/cancelorder/:id', (req, res) => {
+router.put('/cancelorder/:id', async (req, res) => {
   try {
     const { id } = req.params;
     order.findOne({ _id: id }, (err, result) => {
@@ -300,7 +300,7 @@ router.put('/cancelorder/:id', (req, res) => {
 
   }
 })
-router.put('/completeorder/:id', verifytoken, (req, res) => {
+router.put('/completeorder/:id', verifytoken, async (req, res) => {
   try {
     const { id } = req.params;
     Order.findOne({ _id: id }, (err, result) => {

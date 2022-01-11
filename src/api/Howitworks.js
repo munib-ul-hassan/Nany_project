@@ -5,6 +5,9 @@ const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
 
+const { getStorage  } = require('firebase-admin/storage');
+const bucket = getStorage().bucket('gs://nany-ffb26.appspot.com/')
+
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, "uploads/HIwork/");
@@ -19,9 +22,9 @@ const storage = multer.diskStorage({
 
 var upload = multer({ storage: storage });
 
-router.post("/", upload.array("file"), (req, res) => {
+router.post("/", upload.array("file"), async (req, res) => {
   try {
-    HIwork.find({}, (err, result) => {
+    HIwork.find({}, async (err, result) => {
       if (result.length > 0) {
         res
           .status(200)
@@ -33,9 +36,11 @@ router.post("/", upload.array("file"), (req, res) => {
         content = [];
 
         for (var i = 0; i < works.length; i++) {
+          await bucket.upload(req.files[i].path)
+
           content.push({
             text: works[i].text || " ",
-            icon: req.files[i] ? req.files[i].path : " ",
+            icon: req.files ? req.files[i].filename : ""
           });
         }
 
@@ -61,7 +66,7 @@ router.post("/", upload.array("file"), (req, res) => {
     res.status(400).json({ message: err.message, success: false });
   }
 });
-router.put("/:id", (req, res) => {
+router.put("/:id", async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -84,7 +89,7 @@ router.put("/:id", (req, res) => {
     res.status(400).json({ message: err.message, success: false });
   }
 });
-router.delete("/", (req, res) => {
+router.delete("/", async (req, res) => {
   try {
     const { id } = req.query;
     if (!id) {
@@ -116,7 +121,7 @@ router.delete("/", (req, res) => {
     res.status(400).json({ message: err.message, success: false });
   }
 });
-router.get("/", (req, res) => {
+router.get("/", async (req, res) => {
   try {
     const { Search } = req.query;
     if (Search) {

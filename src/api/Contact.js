@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const contact = require("../models/Contact");
 
-router.post("/", (req, res) => {
+router.post("/", async (req, res) => {
   try {
     const { text,
       mobile,
@@ -49,7 +49,7 @@ router.post("/", (req, res) => {
     res.status(400).json({ message: err.message, success: false });
   }
 });
-router.put("/:id", (req, res) => {
+router.put("/:id", async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -72,7 +72,7 @@ router.put("/:id", (req, res) => {
     res.status(400).json({ message: err.message, success: false });
   }
 });
-router.delete("/", (req, res) => {
+router.delete("/", async (req, res) => {
   try {
     const { id } = req.query;
     if (!id) {
@@ -94,7 +94,7 @@ router.delete("/", (req, res) => {
     res.status(400).json({ message: err.message, success: false });
   }
 });
-router.get("/", (req, res) => {
+router.get("/", async (req, res) => {
   try {
     contact.find({}, (err, result) => {
       if (!result) {

@@ -2,6 +2,9 @@ const express = require("express");
 const router = express.Router();
 const product = require("../models/product");
 const fs = require("fs");
+
+const { getStorage  } = require('firebase-admin/storage');
+const bucket = getStorage().bucket('gs://nany-ffb26.appspot.com/')
 const path = require("path");
 
 const multer = require("multer");
@@ -19,16 +22,12 @@ const storage = multer.diskStorage({
 
 var upload = multer({ storage: storage });
 
-router.post("/", upload.array("file"), (req, res) => {
+router.post("/", upload.array("file"), async (req, res) => {
   try {
-
-
-
-
-
     const { name, category, price } = req.body;
     if (req.files) {
-      req.body.image = req.files[0] ? req.files[0].path : "";
+        await bucket.upload(req.files[0].path)
+        req.body.image = req.files[0] ? req.files[0].filename : ""; 
     }
     req.body.color = req.body.color.split(',')
     if (!(name && category && price)) {
@@ -49,7 +48,7 @@ router.post("/", upload.array("file"), (req, res) => {
     res.status(400).json({ message: err.message, success: false });
   }
 });
-router.put("/:id", (req, res) => {
+router.put("/:id", async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -72,7 +71,7 @@ router.put("/:id", (req, res) => {
     res.status(400).json({ message: err.message, success: false });
   }
 });
-router.delete("/", (req, res) => {
+router.delete("/", async (req, res) => {
   try {
     const { id } = req.query;
     if (!id) {
@@ -102,7 +101,7 @@ router.delete("/", (req, res) => {
     res.status(400).json({ message: err.message, success: false });
   }
 });
-router.get("/", (req, res) => {
+router.get("/", async (req, res) => {
   try {
     const { Search, category, id } = req.query;
 

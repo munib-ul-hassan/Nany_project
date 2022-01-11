@@ -6,6 +6,9 @@ const path = require("path");
 var bcrypt = require("bcryptjs");
 const nodemailer = require("nodemailer");
 const fs = require("fs");
+
+const { getStorage  } = require('firebase-admin/storage');
+const bucket = getStorage().bucket('gs://nany-ffb26.appspot.com/')
 const { tokengenerate, verifyadmintoken } = require("../middleware/auth");
 
 const storage = multer.diskStorage({
@@ -75,7 +78,7 @@ router.post("/register/user", upload.array("file"), async (req, res) => {
 });
 
 //signup for manager
-router.post("/register/manager", verifyadmintoken, upload.array("file"), (req, res) => {
+router.post("/register/manager", verifyadmintoken, upload.array("file"), async (req, res) => {
   try {
     const { name, email, password, } = req.body;
 
@@ -128,7 +131,7 @@ router.post("/register/manager", verifyadmintoken, upload.array("file"), (req, r
 })
 
 //signup for admin
-router.post("/register/admin", upload.array("file"), (req, res) => {
+router.post("/register/admin", upload.array("file"), async (req, res) => {
   try {
     const { name, email, password, } = req.body;
     var re = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
@@ -267,7 +270,7 @@ router.post("/otpsend", async (req, res) => {
 });
 
 //updateprofile
-router.post("/updateprofile", (req, res) => {
+router.post("/updateprofile", async (req, res) => {
   try {
     const id = req.user.user._id || req.query
     if (!id) {

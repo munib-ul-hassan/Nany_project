@@ -5,6 +5,8 @@ const topheader = require("../models/Topheader");
 const path = require("path");
 const fs = require("fs");
 
+
+
 const { getStorage  } = require('firebase-admin/storage');
 const bucket = getStorage().bucket('gs://nany-ffb26.appspot.com/')
 
@@ -34,8 +36,6 @@ router.post("/", upload.single("file"), async (req, res) => {
       .send({ message: "All input is required", success: false });
     } else {
       await bucket.upload(req.file.path)
-
-
       req.body.image = req.file.filename
       
 
@@ -62,7 +62,7 @@ router.post("/", upload.single("file"), async (req, res) => {
     res.status(400).json({ message: err.message, success: false });
   }
 });
-router.put("/:id",upload.single('file'), (req, res) => {
+router.put("/:id",upload.single('file'), async (req, res) => {
   try {
     
     const { id } = req.params;
@@ -99,7 +99,7 @@ router.put("/:id",upload.single('file'), (req, res) => {
   }
 });
 
-router.delete("/", (req, res) => {
+router.delete("/", async (req, res) => {
   try {
     const { id } = req.query;
     if (!id) {
@@ -128,7 +128,7 @@ router.delete("/", (req, res) => {
     res.status(400).json({ message: err.message, success: false });
   }
 });
-router.get("/", (req, res) => {
+router.get("/", async (req, res) => {
   try {
     const { Search } = req.query;
     if (Search) {

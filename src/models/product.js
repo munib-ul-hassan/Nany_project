@@ -9,13 +9,11 @@ const product = mongoose.Schema(
       },
     ],
     image: String,
-    price: Number,
-    
-    
+    price: Number,   
     color: Array,
     instock: Boolean,
-    quantity: Number,
-    star: Number
+    quantity: Number
+    
   },
   { timestamps: true }
 );
