@@ -1,9 +1,13 @@
 const express = require("express");
 const router = express.Router();
 const topheader = require("../models/Topheader");
-const multer = require("multer");
+ const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
+
+const { getStorage  } = require('firebase-admin/storage');
+const bucket = getStorage().bucket('gs://nany-ffb26.appspot.com/')
+
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -18,18 +22,22 @@ const storage = multer.diskStorage({
   },
 });
 
-var upload = multer({ storage: storage });
+var upload = multer({    storage:storage });
 
-router.post("/", upload.array("file"), (req, res) => {
+
+router.post("/", upload.single("file"), async (req, res) => {
   try {
-
     const { text, button_text, link } = req.body;
-    if ((req.files.length > 0) && !(text && button_text && link)) {
+    if ((req.file.length > 0) && !(text && button_text && link)) {
       res
-        .status(200)
-        .send({ message: "All input is required", success: false });
+      .status(200)
+      .send({ message: "All input is required", success: false });
     } else {
-      req.body.image = req.files[0].path
+      await bucket.upload(req.file.path)
+
+
+      req.body.image = req.file.filename
+      
 
       topheader.find({}, (err, result) => {
 
@@ -54,23 +62,37 @@ router.post("/", upload.array("file"), (req, res) => {
     res.status(400).json({ message: err.message, success: false });
   }
 });
-router.put("/:id", (req, res) => {
+router.put("/:id",upload.single('file'), (req, res) => {
   try {
+    
     const { id } = req.params;
     if (!id) {
       res.status(200).send({ message: "id is not specify", success: false });
     } else {
-      topheader.updateOne({ _id: id }, req.body, (err, result) => {
-        if (err) {
+      topheader.findOne({_id:id},(err,result)=>{
+        if(!err){
           res.status(200).send({ message: err.message, success: false });
-        } else {
-          res.status(200).send({
-            message: "Data updated Successfully",
-            success: true,
-            data: result,
-          });
+        }else{
+      if(req.file){
+
+        fs.unlink(result.image,()=>{})
+        req.body.image = req.file.path
+      }
+
+    topheader.updateOne({ _id: id }, req.body, (err, result) => {
+      if (err) {
+        res.status(200).send({ message: err.message, success: false });
+      } else {
+        res.status(200).send({
+          message: "Data updated Successfully",
+          success: true,
+          data: result,
+        });
+      }
+    });
+
         }
-      });
+      })
     }
   } catch (err) {
     res.status(400).json({ message: err.message, success: false });

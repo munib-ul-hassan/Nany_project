@@ -4,7 +4,15 @@ const splashscreen = require("../models/SplashScreen");
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
-const { spawn } = require("child_process");
+
+
+const { getStorage  } = require('firebase-admin/storage');
+
+
+
+const bucket = getStorage().bucket('gs://nany-ffb26.appspot.com/')
+
+
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
@@ -20,10 +28,11 @@ const storage = multer.diskStorage({
 
 var upload = multer({ storage: storage });
 
-router.post("/", upload.array("file"), (req, res) => {
+router.post("/", upload.array("file"), async (req, res) => {
     try {
         if (req.files.length > 0) {
-            req.body.image = req.files[0].path
+            await bucket.upload(req.file[0].path)
+            req.body.image = req.files[0].filename
             const Splashscreen = new splashscreen(req.body);
             Splashscreen.save().then((item) => {
                 res.status(200).send({
