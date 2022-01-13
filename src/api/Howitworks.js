@@ -12,7 +12,7 @@ const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, "uploads/HIwork/");
   },
-  filename: function (req, file, cb) {
+  path: function (req, file, cb) {
     cb(
       null,
       file.fieldname + "-" + Date.now() + path.extname(file.originalname)
@@ -30,27 +30,28 @@ router.post("/", upload.array("file"), async (req, res) => {
           .status(200)
           .send({ message: "First delete data then post", success: false });
       } else {
-
-        req.body.works = JSON.parse(req.body.works);
         const { text, works } = req.body;
-        content = [];
 
-        for (var i = 0; i < works.length; i++) {
-          
-
-          content.push({
-            text: works[i].text || " ",
-            icon: req.files ? req.files[i].path : ""
-          });
-        }
-
-        req.body.works = content;
 
         if (!(text && works)) {
           res
             .status(200)
             .send({ message: "All input is required", success: false });
         } else {
+          req.body.works = JSON.parse(req.body.works);
+          content = [];
+  
+          for (var i = 0; i < works.length; i++) {
+            
+  
+            content.push({
+              text: works[i].text || " ",
+              icon: req.files ? req.files[i].path : ""
+            });
+          }
+  
+          req.body.works = content;
+  
           const hiwork = new HIwork(req.body);
           hiwork.save().then((item) => {
             res.status(200).send({
