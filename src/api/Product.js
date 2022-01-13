@@ -26,8 +26,8 @@ router.post("/", upload.array("file"), async (req, res) => {
   try {
     const { name, category, price } = req.body;
     if (req.files) {
-        await bucket.upload(req.files[0].path)
-        req.body.image = req.files[0] ? req.files[0].filename : ""; 
+        
+        req.body.image = req.files[0] ? req.files[0].path : ""; 
     }
     req.body.color = req.body.color.split(',')
     if (!(name && category && price)) {

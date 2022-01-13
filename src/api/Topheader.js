@@ -35,8 +35,8 @@ router.post("/", upload.single("file"), async (req, res) => {
       .status(200)
       .send({ message: "All input is required", success: false });
     } else {
-      await bucket.upload(req.file.path)
-      req.body.image = req.file.filename
+      
+      req.body.image = req.file.path
       
 
       topheader.find({}, (err, result) => {

@@ -36,11 +36,11 @@ router.post("/", upload.array("file"), async (req, res) => {
         content = [];
 
         for (var i = 0; i < works.length; i++) {
-          await bucket.upload(req.files[i].path)
+          
 
           content.push({
             text: works[i].text || " ",
-            icon: req.files ? req.files[i].filename : ""
+            icon: req.files ? req.files[i].path : ""
           });
         }
 

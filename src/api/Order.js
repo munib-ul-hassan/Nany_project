@@ -14,8 +14,6 @@ const pdf = require('html-pdf');
 router.post("/", async (req, res) => {
   try {
     const { order, product } = req.body;
-    
-
     var re = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
     if (!(order && product)) {
       res
@@ -27,22 +25,12 @@ router.post("/", async (req, res) => {
       } else {
         var count = 0
         fs.unlink('./invoice.pdf',()=>{})
-        const invoiceid = await (await Order.count({}))
-        req.body.id = invoiceid
-        
-        
-        
-        
+        const invoiceid =  await Order.count({})
+        req.body.id = invoiceid             
         pdf.create(pdftemplate(req.body),{}).toFile(__dirname+'/invoice.pdf',(err)=>{
       if(err){
           res.status(200).send({message:err,success:false})
       }else{
-
-      }
-      })
-
-
-
         product.map((item, index) => {
           product[index] = Object.assign(order, {
             product: item._id,  
@@ -51,8 +39,7 @@ router.post("/", async (req, res) => {
             color: item.color
           })
           product[index].status = "Pending"
-          
-//save in to database
+
           const Booking = new Order(product[index]);
           Booking.save().then((item) => {
             if (item) {
@@ -61,11 +48,18 @@ router.post("/", async (req, res) => {
             }  
           })
         })
+      }
+      })
+
+
+
+          
+//save in to database
         
 
         //send invoice to email
 
-        let testAccount = await nodemailer.createTestAccount();
+        
         let transporter = nodemailer.createTransport({
           host:'smtp.gmail.com',
           port : 587,
@@ -107,7 +101,6 @@ router.post("/", async (req, res) => {
     
               res.status(200).send({
                 message: product.length - count + " orders are saved other was rejected",
-    
                 success: true,
               });
             }

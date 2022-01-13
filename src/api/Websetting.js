@@ -41,10 +41,10 @@ router.post("/", upload.array("file"), async (req, res) => {
     }
 
     if (req.files.length > 0) {
-      await bucket.upload(req.files[0].path)
-      await bucket.upload(req.files[1].path)
-      req.body.H_Logo = req.files[0] ? req.files[0].filename : ""; 
-      req.body.F_Logo = req.files[1] ? req.files[1].filename : "";
+      
+      
+      req.body.H_Logo = req.files[0] ? req.files[0].path : ""; 
+      req.body.F_Logo = req.files[1] ? req.files[1].path : "";
     }
     if (
       !(

@@ -25,10 +25,10 @@ var upload = multer({ storage: storage });
 
 router.post("/", upload.single("file"), async (req, res) => {
     try {
-        if (req.files.length > 0) {
+        if (req.file) {
             
-            await bucket.upload(req.file.path)
-            req.body.image = req.file.filename
+            
+            req.body.image = req.file.path
             const Splashscreen = new splashscreen(req.body);
             Splashscreen.save().then((item) => {
                 res.status(200).send({

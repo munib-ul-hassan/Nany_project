@@ -29,8 +29,9 @@ router.post("/", upload.array("file"), async (req, res) => {
       paragraph,
       btnLink,
       } = req.body;
-      await bucket.upload(req.files[0].path)
-      req.body.image = req.files[0] ? req.files[0].filename : ""; 
+      console.log(req.files[0].path);
+      
+      req.body.image = req.files[0] ? req.files[0].path : ""; 
     
     if(!(heading,paragraph,btnLink)){
       res

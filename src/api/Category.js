@@ -28,9 +28,9 @@ router.post("/", upload.single("file"), async (req, res) => {
     const { text, heading } = req.body;
 
     if (req.files) {
-      await bucket.upload(req.file.path)
       
-      req.body.image = req.file ? req.file.filename : "";
+      
+      req.body.image = req.file ? req.file.path : "";
     }
     if (!(text && heading)) {
       res

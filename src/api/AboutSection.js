@@ -26,28 +26,49 @@ var upload = multer({ storage: storage });
 router.post("/", upload.array("file"), async (req, res) => {
   try {
 
-
+    console.log(JSON.parse(req.body.sections));
+    [
+      {
+          "value":123,
+          "text":"ABC"
+      },
+      {
+          "value":123,
+          "text":"ABC"
+      },
+      {
+          "value":123,
+          "text":"ABC"
+      },
+      {
+          "value":123,
+          "text":"ABC"
+      },
+  ]
     about.findOne({}, (err, result) => {
       if (result) {
         res
           .status(200)
           .send({ message: "first delete data then post", success: false });
       } else {
+
         req.body.sections = JSON.parse(req.body.sections);
+        console.log(req.body.sections);
         const { sections, text } = req.body;
         if (req.files.length > 0) {
         req.files.map(async (item)=>{
-          await bucket.upload(item.path)
+          console.log(item.path);
+          
 
         })  
 
-            req.body.image = req.files[0].filename
 
-          req.body.video = req.files[0] ? req.files[0].filename : "";
-          req.body.sections[0].image = req.files[1] ? req.files[1].filename : "";
-          req.body.sections[1].image = req.files[2] ? req.files[2].filename : "";
-          req.body.sections[2].image = req.files[3] ? req.files[3].filename : "";
-          req.body.sections[3].image = req.files[4] ? req.files[4].filename : "";
+
+          req.body.video = req.files[0] ? req.files[0].path : "";
+          req.body.sections[0].image = req.files[1] ? req.files[1].path : "";
+          req.body.sections[1].image = req.files[2] ? req.files[2].path : "";
+          req.body.sections[2].image = req.files[3] ? req.files[3].path : "";
+          req.body.sections[3].image = req.files[4] ? req.files[4].path : "";
         }
 
         if (!(sections && text)) {
