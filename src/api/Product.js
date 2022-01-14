@@ -25,6 +25,7 @@ var upload = multer({ storage: storage });
 router.post("/", upload.array("file"), async (req, res) => {
   try {
     const { name, category, price } = req.body;
+    console.log(req.files)
     if (req.files) {
         
         req.body.image = req.files[0] ? req.files[0].path : ""; 

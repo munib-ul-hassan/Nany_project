@@ -91,6 +91,8 @@ app.get('/:url', async (req, res) => {
 
 app.use(function (req, res, next) {
   res.header("Access-Control-Allow-Headers", "*")
+  res.json({"message":"App Running"})
+
 })
 app.use("/uploads", express.static("uploads"));
 //Data base connection
