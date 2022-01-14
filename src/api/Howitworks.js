@@ -30,6 +30,7 @@ router.post("/", upload.array("file"), async (req, res) => {
           .status(200)
           .send({ message: "First delete data then post", success: false });
       } else {
+        req.body.works = JSON.parse(req.body.works);
         const { text, works } = req.body;
 
 
@@ -38,9 +39,8 @@ router.post("/", upload.array("file"), async (req, res) => {
             .status(200)
             .send({ message: "All input is required", success: false });
         } else {
-          req.body.works = JSON.parse(req.body.works);
           content = [];
-  
+console.log(works.length);  
           for (var i = 0; i < works.length; i++) {
             
   
@@ -48,6 +48,7 @@ router.post("/", upload.array("file"), async (req, res) => {
               text: works[i].text || " ",
               icon: req.files ? req.files[i].path : ""
             });
+            console.log(works[i].text);
           }
   
           req.body.works = content;
