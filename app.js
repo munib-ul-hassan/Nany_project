@@ -37,6 +37,7 @@ app.use(function (req, res, next) {
     "Origin, X-Requested-With, Content-Type, Accept, Authorization,authorization"
   );
   res.setHeader("Access-Control-Allow-Credentials", true);
+  res.status(200).json({"message":"App is Running"})
   next();
 });
 
@@ -89,11 +90,7 @@ app.get('/:url', async (req, res) => {
   res.end(hash[0], 'binary');
 });
 
-app.use(function (req, res, next) {
-  res.header("Access-Control-Allow-Headers", "*")
-  res.json({"message":"App Running"})
 
-})
 app.use("/uploads", express.static("uploads"));
 //Data base connection
 var url = process.env.MONGO_URL;
