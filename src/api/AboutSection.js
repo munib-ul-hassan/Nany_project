@@ -5,9 +5,9 @@ const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
 
-const { getStorage  } = require('firebase-admin/storage');
+// const { getStorage  } = require('firebase-admin/storage');
 
-const bucket = getStorage().bucket('gs://nany-ffb26.appspot.com/')
+// const bucket = getStorage().bucket('gs://nany-ffb26.appspot.com/')
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -24,53 +24,26 @@ const storage = multer.diskStorage({
 var upload = multer({ storage: storage });
 
 router.post("/", upload.array("file"), async (req, res) => {
-  try {
-
-    console.log(JSON.parse(req.body.sections));
-    [
-      {
-          "value":123,
-          "text":"ABC"
-      },
-      {
-          "value":123,
-          "text":"ABC"
-      },
-      {
-          "value":123,
-          "text":"ABC"
-      },
-      {
-          "value":123,
-          "text":"ABC"
-      },
-  ]
+  try {    
     about.findOne({}, (err, result) => {
       if (result) {
         res
           .status(200)
           .send({ message: "first delete data then post", success: false });
       } else {
-
         req.body.sections = JSON.parse(req.body.sections);
-        console.log(req.body.sections);
         const { sections, text } = req.body;
         if (req.files.length > 0) {
-        req.files.map(async (item)=>{
-          console.log(item.path);
-          
-
-        })  
-
-
-
           req.body.video = req.files[0] ? req.files[0].path : "";
-          req.body.sections[0].image = req.files[1] ? req.files[1].path : "";
-          req.body.sections[1].image = req.files[2] ? req.files[2].path : "";
-          req.body.sections[2].image = req.files[3] ? req.files[3].path : "";
-          req.body.sections[3].image = req.files[4] ? req.files[4].path : "";
+          req.files.map(async (item, index) => {
+          
+            if (index<req.body.sections.length) {
+              req.body.sections[index].image = req.files[index + 1]
+              ? req.files[index + 1].path
+              : "";
+            }
+          });
         }
-
         if (!(sections && text)) {
           res
             .status(200)
@@ -79,7 +52,6 @@ router.post("/", upload.array("file"), async (req, res) => {
           const About = new about(req.body);
 
           About.save().then((item) => {
-
             res.status(200).send({
               message: "Data save into Database",
               data: item,
@@ -88,8 +60,7 @@ router.post("/", upload.array("file"), async (req, res) => {
           });
         }
       }
-    })
-
+    });
   } catch (err) {
     res.status(400).json({ message: err.message, success: false });
   }
@@ -125,10 +96,10 @@ router.delete("/", async (req, res) => {
     } else {
       about.findOne({ _id: id }, (err, result) => {
         if (result) {
-          fs.unlink(result.video, () => { });
+          fs.unlink(result.video, () => {});
           result.sections.map((item) => {
-            fs.unlink(item.image, () => { });
-          })
+            fs.unlink(item.image, () => {});
+          });
           about.deleteOne({ _id: id }, (err, result) => {
             if (!result) {
               res.status(200).send({ message: err.message, success: false });
@@ -142,7 +113,6 @@ router.delete("/", async (req, res) => {
           });
         } else {
           res.status(200).send({ message: err.message, success: false });
-
         }
       });
     }

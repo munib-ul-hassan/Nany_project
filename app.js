@@ -5,15 +5,14 @@ require("dotenv").config();
 app.use(express.json());
 
 
-const { initializeApp, cert } = require('firebase-admin/app');
-const { getStorage, getDownloadURL, ref  } = require('firebase-admin/storage');
-const serviceAccount = require('./nany-ffb26-firebase-adminsdk-emky2-7f198e19fc.json');
-var admin = require("firebase-admin");
-initializeApp({
-  credential: cert(serviceAccount),
-  storageBucket: 'gs://nany-ffb26.appspot.com/'
-});
-
+// const { initializeApp, cert } = require('firebase-admin/app');
+// const { getStorage, getDownloadURL, ref  } = require('firebase-admin/storage');
+// const serviceAccount = require('./nany-ffb26-firebase-adminsdk-emky2-7f198e19fc.json');
+// var admin = require("firebase-admin");
+// initializeApp({
+//   credential: cert(serviceAccount),
+//   storageBucket: 'gs://nany-ffb26.appspot.com/'
+// });
 
 //cors
 const cors = require("cors");
@@ -29,17 +28,17 @@ app.use(
 
 const { verifyadmintoken } = require("./src/middleware/auth");
 
-app.use(function (req, res, next) {
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
-  res.setHeader(
-    "Access-Control-Allow-Headers",
-    "Origin, X-Requested-With, Content-Type, Accept, Authorization,authorization"
-  );
-  res.setHeader("Access-Control-Allow-Credentials", true);
-  res.status(200).json({"message":"App is Running"})
-  next();
-});
+// app.use(function (req, res, next) {
+//   res.setHeader("Access-Control-Allow-Origin", "*");
+//   res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
+//   res.setHeader(
+//     "Access-Control-Allow-Headers",
+//     "Origin, X-Requested-With, Content-Type, Accept, Authorization,authorization"
+//   );
+//   res.setHeader("Access-Control-Allow-Credentials", true);
+//   // res.status(200).json({"message":"App is Running"})
+//   next();
+// });
 
 //Admin Api's
 //routes
@@ -83,12 +82,12 @@ app.use('/query', query);
 app.use('/splashscreen', splashscreen)
 
 ///get image 
-app.get('/:url', async (req, res) => {
-  const fileRef = admin.storage().bucket().file(req.params.url);
-  const hash = await fileRef.download()
-  res.contentType(fileRef.metadata.contentType);
-  res.end(hash[0], 'binary');
-});
+// app.get('/:url', async (req, res) => {
+//   const fileRef = admin.storage().bucket().file(req.params.url);
+//   const hash = await fileRef.download()
+//   res.contentType(fileRef.metadata.contentType);
+//   res.end(hash[0], 'binary');
+// });
 
 
 app.use("/uploads", express.static("uploads"));

@@ -3,8 +3,7 @@ const router = express.Router();
 const product = require("../models/product");
 const fs = require("fs");
 
-const { getStorage  } = require('firebase-admin/storage');
-const bucket = getStorage().bucket('gs://nany-ffb26.appspot.com/')
+
 const path = require("path");
 
 const multer = require("multer");

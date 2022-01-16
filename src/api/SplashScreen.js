@@ -6,8 +6,7 @@ const path = require("path");
 const fs = require("fs");
 
 
-const { getStorage  } = require('firebase-admin/storage');
-const bucket = getStorage().bucket('gs://nany-ffb26.appspot.com/')
+
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
