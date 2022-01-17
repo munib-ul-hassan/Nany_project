@@ -36,7 +36,7 @@ app.use(function (req, res, next) {
     "Origin, X-Requested-With, Content-Type, Accept, Authorization,authorization"
   );
   res.setHeader("Access-Control-Allow-Credentials", true);
-  // res.status(200).json({"message":"App is Running"})
+  res.status(200).json({"message":"App is Running"})
   next();
 });
 
