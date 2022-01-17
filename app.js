@@ -28,17 +28,17 @@ app.use(
 
 const { verifyadmintoken } = require("./src/middleware/auth");
 
-// app.use(function (req, res, next) {
-//   res.setHeader("Access-Control-Allow-Origin", "*");
-//   res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
-//   res.setHeader(
-//     "Access-Control-Allow-Headers",
-//     "Origin, X-Requested-With, Content-Type, Accept, Authorization,authorization"
-//   );
-//   res.setHeader("Access-Control-Allow-Credentials", true);
-//   // res.status(200).json({"message":"App is Running"})
-//   next();
-// });
+app.use(function (req, res, next) {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
+  res.setHeader(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept, Authorization,authorization"
+  );
+  res.setHeader("Access-Control-Allow-Credentials", true);
+  // res.status(200).json({"message":"App is Running"})
+  next();
+});
 
 //Admin Api's
 //routes
@@ -90,7 +90,7 @@ app.use('/splashscreen', splashscreen)
 // });
 
 
-app.use("/uploads", express.static("uploads"));
+
 //Data base connection
 var url = process.env.MONGO_URL;
 
