@@ -5,8 +5,6 @@ const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
 
-
-
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, "uploads/HIwork/");
@@ -32,26 +30,22 @@ router.post("/", upload.array("file"), async (req, res) => {
         req.body.works = JSON.parse(req.body.works);
         const { text, works } = req.body;
 
-
         if (!(text && works)) {
           res
             .status(200)
             .send({ message: "All input is required", success: false });
         } else {
           content = [];
-console.log(works.length);  
+
           for (var i = 0; i < works.length; i++) {
-            
-  
             content.push({
               text: works[i].text || " ",
-              icon: req.files ? req.files[i].path : ""
+              icon: req.files ? req.files[i].path : "",
             });
-            console.log(works[i].text);
           }
-  
+
           req.body.works = content;
-  
+
           const hiwork = new HIwork(req.body);
           hiwork.save().then((item) => {
             res.status(200).send({
@@ -62,7 +56,7 @@ console.log(works.length);
           });
         }
       }
-    })
+    });
   } catch (err) {
     res.status(400).json({ message: err.message, success: false });
   }
@@ -99,9 +93,8 @@ router.delete("/", async (req, res) => {
       HIwork.findOne({ _id: id }, (err, result) => {
         if (result) {
           result.works.map((item) => {
-
-            fs.unlink(item.icon, () => { });
-          })
+            fs.unlink(item.icon, () => {});
+          });
           HIwork.deleteOne({ _id: id }, (err, result) => {
             if (!result) {
               res.status(200).send({ message: err.message, success: false });

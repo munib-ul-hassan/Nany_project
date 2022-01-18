@@ -4,7 +4,8 @@ const contact = require("../models/Contact");
 
 router.post("/", async (req, res) => {
   try {
-    const { text,
+    const {
+      text,
       mobile,
       email,
       address,
@@ -12,17 +13,22 @@ router.post("/", async (req, res) => {
       facebook,
       instagram,
       twitter,
-      linkedin } = req.body;
+      linkedin,
+    } = req.body;
 
-    if (!(text &&
-      mobile &&
-      email &&
-      address &&
-      website &&
-      facebook &&
-      instagram &&
-      twitter &&
-      linkedin)) {
+    if (
+      !(
+        text &&
+        mobile &&
+        email &&
+        address &&
+        website &&
+        facebook &&
+        instagram &&
+        twitter &&
+        linkedin
+      )
+    ) {
       res
         .status(200)
         .send({ message: "All input is required", success: false });
@@ -33,7 +39,6 @@ router.post("/", async (req, res) => {
             .status(200)
             .send({ message: "first delete then post data", success: false });
         } else {
-
           const Contact = new contact(req.body);
           Contact.save().then((item) => {
             res.status(200).send({
@@ -43,7 +48,7 @@ router.post("/", async (req, res) => {
             });
           });
         }
-      })
+      });
     }
   } catch (err) {
     res.status(400).json({ message: err.message, success: false });

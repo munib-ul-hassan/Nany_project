@@ -15,14 +15,15 @@ const order = mongoose.Schema(
         ref: "product",
       },
     ],
-    user: [{
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "auth"
-    }],
+    user: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "auth",
+      },
+    ],
     color: String,
     order_note: String,
     status: String,
-
   },
   { timestamps: true }
 );

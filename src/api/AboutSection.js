@@ -5,9 +5,7 @@ const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
 
-// const { getStorage  } = require('firebase-admin/storage');
 
-// const bucket = getStorage().bucket('gs://nany-ffb26.appspot.com/')
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -24,7 +22,7 @@ const storage = multer.diskStorage({
 var upload = multer({ storage: storage });
 
 router.post("/", upload.array("file"), async (req, res) => {
-  try {    
+  try {
     about.findOne({}, (err, result) => {
       if (result) {
         res
@@ -36,11 +34,10 @@ router.post("/", upload.array("file"), async (req, res) => {
         if (req.files.length > 0) {
           req.body.video = req.files[0] ? req.files[0].path : "";
           req.files.map(async (item, index) => {
-          
-            if (index<req.body.sections.length) {
+            if (index < req.body.sections.length) {
               req.body.sections[index].image = req.files[index + 1]
-              ? req.files[index + 1].path
-              : "";
+                ? req.files[index + 1].path
+                : "";
             }
           });
         }

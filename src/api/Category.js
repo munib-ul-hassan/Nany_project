@@ -5,8 +5,6 @@ const path = require("path");
 const category = require("../models/Category");
 const fs = require("fs");
 
-
-
 const multer = require("multer");
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -27,8 +25,6 @@ router.post("/", upload.single("file"), async (req, res) => {
     const { text, heading } = req.body;
 
     if (req.files) {
-      
-      
       req.body.image = req.file ? req.file.path : "";
     }
     if (!(text && heading)) {
@@ -83,7 +79,7 @@ router.delete("/", async (req, res) => {
     } else {
       category.find({ _id: id }, (err, result) => {
         if (result) {
-          fs.unlink(result.image, () => { });
+          fs.unlink(result.image, () => {});
           category.deleteOne({ _id: id }, (err, val) => {
             if (!val) {
               res.status(200).send({ message: err.message, success: false });
@@ -91,7 +87,6 @@ router.delete("/", async (req, res) => {
               res.status(200).send({
                 message: "Data deleted Successfully",
                 success: true,
-
               });
             }
           });
@@ -106,27 +101,18 @@ router.delete("/", async (req, res) => {
 });
 router.get("/", async (req, res) => {
   try {
-    const { Search } = req.query;
-    if (Search) {
-      category.find(
-        {
-          name: {
-            $regex: Search,
-            $options: "i",
-          },
-        },
-        (err, result) => {
-          if (!result) {
-            res.status(200).send({ message: err.message, success: false });
-          } else {
-            res.status(200).send({
-              message: "Data get Successfully",
-              success: true,
-              data: result,
-            });
-          }
+    if (req.query) {
+      category.find(req.query, (err, result) => {
+        if (!result) {
+          res.status(200).send({ message: err.message, success: false });
+        } else {
+          res.status(200).send({
+            message: "Data get Successfully",
+            success: true,
+            data: result,
+          });
         }
-      );
+      });
     } else {
       category.find({}, (err, result) => {
         if (!result) {

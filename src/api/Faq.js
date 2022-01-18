@@ -2,8 +2,6 @@ const express = require("express");
 const router = express.Router();
 const faq = require("../models/Faq");
 
-
-
 router.post("/", async (req, res) => {
   try {
     const { question, answer } = req.body;
@@ -60,7 +58,6 @@ router.delete("/", async (req, res) => {
     } else {
       faq.findOne({ _id: id }, (err, result) => {
         if (result) {
-
           faq.deleteOne({ _id: id }, (err, result) => {
             if (!result) {
               res.status(200).send({ message: err.message, success: false });

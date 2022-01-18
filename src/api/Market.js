@@ -5,8 +5,6 @@ const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
 
-
-
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, "uploads/market/");
@@ -27,8 +25,6 @@ router.post("/", upload.single("file"), async (req, res) => {
     const { text, content } = req.body;
 
     if (req.file) {
-      
-      
       req.body.image = req.file ? req.file.path : "";
     }
 

@@ -3,7 +3,6 @@ const router = express.Router();
 const product = require("../models/product");
 const fs = require("fs");
 
-
 const path = require("path");
 
 const multer = require("multer");
@@ -24,12 +23,11 @@ var upload = multer({ storage: storage });
 router.post("/", upload.array("file"), async (req, res) => {
   try {
     const { name, category, price } = req.body;
-    console.log(req.files)
+
     if (req.files) {
-        
-        req.body.image = req.files[0] ? req.files[0].path : ""; 
+      req.body.image = req.files[0] ? req.files[0].path : "";
     }
-    req.body.color = req.body.color.split(',')
+    req.body.color = req.body.color.split(",");
     if (!(name && category && price)) {
       res
         .status(200)
@@ -79,7 +77,7 @@ router.delete("/", async (req, res) => {
     } else {
       product.findOne({ _id: id }, (err, result) => {
         if (result) {
-          fs.unlink(result.image, () => { });
+          fs.unlink(result.image, () => {});
           product.deleteOne({ _id: id }, (err, val) => {
             if (!val) {
               res.status(200).send({ message: err.message, success: false });
@@ -87,15 +85,13 @@ router.delete("/", async (req, res) => {
               res.status(200).send({
                 message: "Data deleted Successfully",
                 success: true,
-
               });
             }
           });
         } else {
           res.status(200).send({ message: err.message, success: false });
         }
-      })
-
+      });
     }
   } catch (err) {
     res.status(400).json({ message: err.message, success: false });
@@ -128,15 +124,12 @@ router.get("/", async (req, res) => {
     } else if (id) {
       product.find(
         {
-          _id: id
+          _id: id,
         },
         (err, result) => {
           if (!result) {
             res.status(200).send({ message: err.message, success: false });
           } else {
-
-
-
             res.status(200).send({
               message: "Data get Successfully",
               success: true,
@@ -148,7 +141,7 @@ router.get("/", async (req, res) => {
     } else if (category) {
       product.find(
         {
-          category: category
+          category: category,
         },
         (err, result) => {
           if (!result) {

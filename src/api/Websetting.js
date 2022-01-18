@@ -5,8 +5,6 @@ const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
 
-
-
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, "uploads/Websetting/");
@@ -40,9 +38,7 @@ router.post("/", upload.array("file"), async (req, res) => {
     }
 
     if (req.files.length > 0) {
-      
-      
-      req.body.H_Logo = req.files[0] ? req.files[0].path : ""; 
+      req.body.H_Logo = req.files[0] ? req.files[0].path : "";
       req.body.F_Logo = req.files[1] ? req.files[1].path : "";
     }
     if (

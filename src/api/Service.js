@@ -5,8 +5,6 @@ const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
 
-
-
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, "uploads/service/");
@@ -23,20 +21,16 @@ var upload = multer({ storage: storage });
 
 router.post("/", upload.array("file"), async (req, res) => {
   try {
-
-    const {  heading,
-      paragraph,
-      btnLink,
-      } = req.body;
-      console.log(req.files[0].path);
-      
-      req.body.image = req.files[0] ? req.files[0].path : ""; 
+    const { heading, paragraph, btnLink } = req.body;
     
-    if(!(heading,paragraph,btnLink)){
+
+    req.body.image = req.files[0] ? req.files[0].path : "";
+    
+    if (!(heading, paragraph, btnLink)) {
       res
-      .status(200)
-      .send({ message: "All input is required", success: false });
-    }else{  
+        .status(200)
+        .send({ message: "All input is required", success: false });
+    } else {
       const Service = new service(req.body);
       Service.save().then((item) => {
         res.status(200).send({
@@ -50,20 +44,23 @@ router.post("/", upload.array("file"), async (req, res) => {
     res.status(400).json({ message: err.message, success: false });
   }
 });
-router.put("/:id",upload.array('file'), async (req, res) => {
+router.put("/:id", upload.array("file"), async (req, res) => {
   try {
-
     const { id } = req.params;
-    if(res.files){
-      req.body.image=req.files[0].path
+    if (res.files) {
+      req.body.image = req.files[0].path;
     }
+    
     if (!id) {
       res.status(200).send({ message: "id is not specify", success: false });
     } else {
+    
       service.updateOne({ _id: id }, req.body, (err, result) => {
         if (err) {
           res.status(200).send({ message: err.message, success: false });
         } else {
+    
+
           res.status(200).send({
             message: "Data updated Successfully",
             success: true,
@@ -84,8 +81,8 @@ router.delete("/", async (req, res) => {
     } else {
       service.findOne({ _id: id }, (err, result) => {
         if (result) {
-          fs.unlink(result.image, () => { });
-          
+          fs.unlink(result.image, () => {});
+
           service.deleteOne({ _id: id }, (err, result) => {
             if (!result) {
               res.status(200).send({ message: err.message, success: false });
@@ -147,25 +144,22 @@ router.get("/", async (req, res) => {
   }
 });
 
-router.get('/byid/:id',(req,res)=>{
-  try{
-    
-const {id} = req.params; 
-service.findOne({_id:id}, (err, result) => {
-  if (!result) {
-    res.status(200).send({ message: err.message, success: false });
-  } else {
-    res.status(200).send({
-      message: "Data get Successfully",
-      success: true,
-      data: result,
+router.get("/byid/:id", (req, res) => {
+  try {
+    const { id } = req.params;
+    service.findOne({ _id: id }, (err, result) => {
+      if (!result) {
+        res.status(200).send({ message: err.message, success: false });
+      } else {
+        res.status(200).send({
+          message: "Data get Successfully",
+          success: true,
+          data: result,
+        });
+      }
     });
-  }
-});
-
-
-  }catch (err) {
+  } catch (err) {
     res.status(400).json({ message: err.message, success: false });
   }
-})
+});
 module.exports = router;

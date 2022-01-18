@@ -3,7 +3,6 @@ const category = mongoose.Schema(
   {
     text: String,
     heading: String,
-
     image: String,
   },
   { timestamps: true }
