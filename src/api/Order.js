@@ -2,6 +2,11 @@ const express = require("express");
 const router = express.Router();
 const Order = require("../models/Order");
 const nodemailer = require("nodemailer");
+<<<<<<< HEAD
+=======
+const path = require('path')
+const fs = require('fs')
+>>>>>>> ee86b945cafab154634d271144fc0ecb5773c992
 
 const path = require("path");
 const fs = require("fs");
