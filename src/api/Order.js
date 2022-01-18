@@ -2,7 +2,6 @@ const express = require("express");
 const router = express.Router();
 const Order = require("../models/Order");
 const nodemailer = require("nodemailer");
-const {PDFNet} = require('@pdftron/pdfnet-node')
 const path = require('path')
 const fs = require('fs')
 
