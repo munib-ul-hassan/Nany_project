@@ -50,7 +50,7 @@ router.put("/:id", upload.array("file"), async (req, res) => {
     const { id } = req.params;
 
     
-    if (id) {
+    if (!id) {
       res.status(200).send({ message: "id is not specify", success: false });
     } else {
       category.findOne({_id:id},(err,result)=>{
