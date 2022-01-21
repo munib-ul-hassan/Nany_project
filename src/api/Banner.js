@@ -49,7 +49,8 @@ router.put("/:id", upload.array("file"), async (req, res) => {
     } else {
       banner.findById({ _id: id }, (err, result) => {
         if (result) {
-          fs.unlink(result.Bgimage, () => {});
+          if(result.Bgimage){
+          fs.unlink(result.Bgimage, () => {});}
           req.body.image = req.files[0].path;
           banner.updateOne({ _id: id }, req.body, (err, result) => {
             if (err) {
@@ -82,7 +83,10 @@ router.delete("/", async (req, res) => {
     } else {
       banner.findOne({ _id: id }, (err, result) => {
         if (result) {
+
+          if(result.Bgimage){
           fs.unlink(result.Bgimage, () => {});
+        }
 
           banner.deleteOne({ _id: id }, (err, result) => {
             if (!result) {

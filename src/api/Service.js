@@ -81,7 +81,8 @@ router.delete("/", async (req, res) => {
     } else {
       service.findOne({ _id: id }, (err, result) => {
         if (result) {
-          fs.unlink(result.image, () => {});
+          if(result.image){
+            fs.unlink(result.image, () => {});}
 
           service.deleteOne({ _id: id }, (err, result) => {
             if (!result) {

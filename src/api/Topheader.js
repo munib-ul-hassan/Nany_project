@@ -28,18 +28,14 @@ router.post("/", upload.single("file"), async (req, res) => {
         .status(200)
         .send({ message: "All input is required", success: false });
     } else {
-
-
       req.body.image = req.file.path;
 
       topheader.find({}, (err, result) => {
         if (result.length > 0) {
-          res
-            .status(200)
-            .send({
-              message: "first delete previous data than add ",
-              success: false,
-            });
+          res.status(200).send({
+            message: "first delete previous data than add ",
+            success: false,
+          });
         } else {
           const web = new topheader(req.body);
           web.save().then((item) => {
@@ -67,7 +63,9 @@ router.put("/:id", upload.single("file"), async (req, res) => {
           res.status(200).send({ message: err.message, success: false });
         } else {
           if (req.file) {
-            fs.unlink(result.image, () => {});
+            if (result.image) {
+              fs.unlink(result.image, () => {});
+            }
             req.body.image = req.file.path;
           }
 
@@ -98,7 +96,9 @@ router.delete("/", async (req, res) => {
     } else {
       topheader.findOne({ _id: id }, (err, result) => {
         if (result) {
-          fs.unlink(result.image, () => {});
+          if (result.image) {
+            fs.unlink(result.image, () => {});
+          }
           topheader.deleteOne({ _id: id }, (err, result) => {
             if (!result) {
               res.status(200).send({ message: err.message, success: false });

@@ -108,8 +108,11 @@ router.delete("/", async (req, res) => {
     } else {
       Websetting.findOne({ _id: id }, (err, result) => {
         if (result) {
-          fs.unlink(result.H_Logo, () => {});
-          fs.unlink(result.F_Logo, () => {});
+          if(result.H_Logo){
+            fs.unlink(result.H_Logo, () => {});}
+            if(result.F_Logo){
+              fs.unlink(result.F_Logo, () => {});}
+          
           Websetting.deleteOne({ _id: id }, (err, result) => {
             if (!result) {
               res.status(200).send({ message: err.message, success: false });

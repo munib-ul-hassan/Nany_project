@@ -77,7 +77,8 @@ router.delete("/", async (req, res) => {
     } else {
       product.findOne({ _id: id }, (err, result) => {
         if (result) {
-          fs.unlink(result.image, () => {});
+          if(result.image){
+            fs.unlink(result.image, () => {});}
           product.deleteOne({ _id: id }, (err, val) => {
             if (!val) {
               res.status(200).send({ message: err.message, success: false });

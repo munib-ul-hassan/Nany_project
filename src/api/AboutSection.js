@@ -93,9 +93,13 @@ router.delete("/", async (req, res) => {
     } else {
       about.findOne({ _id: id }, (err, result) => {
         if (result) {
-          fs.unlink(result.video, () => {});
+          if(result.video){
+          fs.unlink(result.video, () => {});}
           result.sections.map((item) => {
-            fs.unlink(item.image, () => {});
+            if(item.image){
+
+              fs.unlink(item.image, () => {});
+            }
           });
           about.deleteOne({ _id: id }, (err, result) => {
             if (!result) {

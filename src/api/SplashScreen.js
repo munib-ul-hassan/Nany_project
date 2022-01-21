@@ -45,7 +45,8 @@ router.put("/:id", upload.array("file"), async (req, res) => {
       res.status(200).send({ message: "id is not specify", success: false });
     } else {
       splashscreen.findOne({ _id: id }, req.body, (err, result) => {
-        fs.unlink(result.image, () => {});
+        if(result.image){
+          fs.unlink(result.image, () => {});}
         req.body.image = req.files[0].path;
         splashscreen.updateOne({ _id: id }, req.body, (err, result) => {
           if (err) {
@@ -71,7 +72,8 @@ router.delete("/", async (req, res) => {
       res.status(200).send({ message: "id is not specify", success: false });
     } else {
       splashscreen.findOne({ _id: id }, (err, result) => {
-        fs.unlink(result.image, () => {});
+        if(result.image){
+          fs.unlink(result.image, () => {});}
         splashscreen.deleteOne({ _id: id }, (err, result) => {
           if (!result) {
             res.status(200).send({ message: err.message, success: false });

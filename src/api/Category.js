@@ -49,10 +49,8 @@ router.put("/:id", upload.array("file"), async (req, res) => {
   try {
     const { id } = req.params;
 
-    if (req.files) {
-      req.body.image = req.files[0] ? req.files[0].path : "";
-    }
-    if (!id) {
+    
+    if (id) {
       res.status(200).send({ message: "id is not specify", success: false });
     } else {
       category.findOne({_id:id},(err,result)=>{
@@ -60,8 +58,12 @@ router.put("/:id", upload.array("file"), async (req, res) => {
           res.status(200).send({ message: err.message, success: false });
 
         }else{
-          
-          fs.unlink(result.image,()=>{})
+          if (req.files) {
+            req.body.image = req.files[0] ? req.files[0].path : "";
+            if(result.image){
+              fs.unlink(result.image, () => {});}
+            
+          }      
 
           category.updateOne({ _id: id }, req.body, (err, result) => {
             if (err) {
@@ -89,7 +91,8 @@ router.delete("/", async (req, res) => {
     } else {
       category.find({ _id: id }, (err, result) => {
         if (result) {
-          // fs.unlink(result.image, () => {});
+          if(result.image){
+            fs.unlink(result.image, () => {});}
           category.deleteOne({ _id: id }, (err, val) => {
             if (!val) {
               res.status(200).send({ message: err.message, success: false });

@@ -93,7 +93,8 @@ router.delete("/", async (req, res) => {
       HIwork.findOne({ _id: id }, (err, result) => {
         if (result) {
           result.works.map((item) => {
-            fs.unlink(item.icon, () => {});
+            if(item.icon){
+            fs.unlink(item.icon, () => {});}
           });
           HIwork.deleteOne({ _id: id }, (err, result) => {
             if (!result) {
