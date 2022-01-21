@@ -4,10 +4,8 @@ const Order = require("../models/Order");
 const nodemailer = require("nodemailer");
 const path = require("path");
 const fs = require("fs");
-
-const { verifyadmintoken, verifytoken } = require("../middleware/auth");
-const pdftemplate = require("../../template/invoice");
-const pdf = require("html-pdf");
+const {PDFNet} = require('@pdftron/pdfnet-node')
+const { verifyadmintoken, verifytoken } = require("../middleware/auth");  
 
 router.post("/", async (req, res) => {
   try {
@@ -20,16 +18,57 @@ router.post("/", async (req, res) => {
     } else if (!re.test(order.email)) {
       res.status(422).send({ message: "invlaid Email", success: false });
     } else {
+
+      function handleinvoiceid(id){req.body.invoiceid = id}
+      Order.find({},async (err,result)=>{
+        req.body.invoiceid = result[result.length-1].invoiceid +1
+        handleinvoiceid()        
+      })
+      
       var count = 0;
-      fs.unlink("./invoice.pdf", () => {});
-      const invoiceid = await Order.count({});
-      req.body.id = invoiceid;
-      pdf
-        .create(pdftemplate(req.body), {})
-        .toFile(__dirname + "/invoice.pdf", (err) => {
-          if (err) {
-            res.status(200).send({ message: err, success: false });
-          } else {
+      // fs.unlink(__dirname,'../../file/invoice-converted.pdf', () => {});
+      const inputpath = path.resolve(__dirname,'../../file/invoice-converted.pdf')
+      const outputpath = path.resolve(__dirname,'../../file/Invoice.pdf')
+    
+      const textreplace =async()=>{        
+    const pdfDoc = await PDFNet.PDFDoc.createFromFilePath(inputpath);
+    await pdfDoc.initSecurityHandler();
+    const replacer = await PDFNet.ContentReplacer.create();
+    const page = await pdfDoc.getPage(1)
+// console.log(Date().now());
+    await replacer.addString("invoiceno",'1')
+    await replacer.addString("date", '12')
+    await replacer.addString("name",order.name)
+    await replacer.addString("postalcode",order.postalCode)
+    await replacer.addString("number",order.mobile)
+    await replacer.addString("address",order.address)
+    await replacer.addString("total",'23')
+    
+    await replacer.process(page)
+    pdfDoc.save(outputpath,PDFNet.SDFDoc.SaveOptions.e_linearized)
+
+}
+
+PDFNet.runWithCleanup(textreplace,"demo:1641127981940:7b5ef390030000000067b17cad66d1fa23446ceda8e6cef1d73fff0305").then(()=>{
+fs.readFile(outputpath,(err,data)=>{
+  if(err){
+  console.log(err);
+  }else{
+    console.log(data);
+  }
+})
+})
+
+      
+      // pdf
+      //   .create(pdftemplate(req.body), {})
+      //   .toFile(__dirname + "/invoice.pdf", (err) => {
+      //     if (err) {
+      //       res.status(200).send({ message: err, success: false });
+      //     } else {
+      //       // const invoiceid = await Order.count({});
+            
+
             product.map((item, index) => {
               product[index] = Object.assign(order, {
                 product: item._id,
@@ -47,11 +86,7 @@ router.post("/", async (req, res) => {
                 }
               });
             });
-          }
-        });
-
-      //save in to database
-
+        
       //send invoice to email
 
       let transporter = nodemailer.createTransport({
@@ -74,8 +109,8 @@ router.post("/", async (req, res) => {
         attachments: [
           {
             file: "invoice.pdf",
-            path: __dirname + "/invoice.pdf",
-          },
+            path: '../../file/Invoice.pdf'
+          }
         ],
       };
 

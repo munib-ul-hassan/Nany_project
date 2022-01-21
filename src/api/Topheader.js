@@ -28,6 +28,8 @@ router.post("/", upload.single("file"), async (req, res) => {
         .status(200)
         .send({ message: "All input is required", success: false });
     } else {
+
+
       req.body.image = req.file.path;
 
       topheader.find({}, (err, result) => {
@@ -61,7 +63,7 @@ router.put("/:id", upload.single("file"), async (req, res) => {
       res.status(200).send({ message: "id is not specify", success: false });
     } else {
       topheader.findOne({ _id: id }, (err, result) => {
-        if (!err) {
+        if (err) {
           res.status(200).send({ message: err.message, success: false });
         } else {
           if (req.file) {

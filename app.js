@@ -24,7 +24,6 @@ app.use(function (req, res, next) {
     "Origin, X-Requested-With, Content-Type, Accept, Authorization,authorization"
   );
   res.setHeader("Access-Control-Allow-Credentials", true);
-
   next();
 });
 
@@ -79,7 +78,7 @@ app.use("/splashscreen", splashscreen);
 
 //Data base connection
 var url = process.env.MONGO_URL;
-
+// var url = 'mongodb://localhost:27017/nanyproject'
 mongoose.connect(
   url,
   { useUnifiedTopology: true, useNewUrlParser: true },
