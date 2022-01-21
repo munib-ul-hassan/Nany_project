@@ -55,10 +55,18 @@ router.put("/:id", upload.array("file"), async (req, res) => {
     if (!id) {
       res.status(200).send({ message: "id is not specify", success: false });
     } else {
-      category.updateOne({ _id: id }, req.body, (err, result) => {
-        if (err) {
+      category.findOne({_id:id},(err,result)=>{
+        if(err){
           res.status(200).send({ message: err.message, success: false });
-        } else {
+
+        }else{
+          
+          fs.unlink(result.image,()=>{})
+
+          category.updateOne({ _id: id }, req.body, (err, result) => {
+            if (err) {
+              res.status(200).send({ message: err.message, success: false });
+            } else {
           res.status(200).send({
             message: "Data updated Successfully",
             success: true,
@@ -66,6 +74,8 @@ router.put("/:id", upload.array("file"), async (req, res) => {
           });
         }
       });
+    }
+  })
     }
   } catch (err) {
     res.status(400).json({ message: err.message, success: false });
@@ -79,7 +89,7 @@ router.delete("/", async (req, res) => {
     } else {
       category.find({ _id: id }, (err, result) => {
         if (result) {
-          fs.unlink(result.image, () => {});
+          // fs.unlink(result.image, () => {});
           category.deleteOne({ _id: id }, (err, val) => {
             if (!val) {
               res.status(200).send({ message: err.message, success: false });
