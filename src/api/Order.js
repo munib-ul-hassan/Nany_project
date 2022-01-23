@@ -19,30 +19,66 @@ router.post("/", async (req, res) => {
       res.status(422).send({ message: "invlaid Email", success: false });
     } else {
 
-      function handleinvoiceid(id){req.body.invoiceid = id}
-      Order.find({},async (err,result)=>{
-        req.body.invoiceid = result[result.length-1].invoiceid +1
-        handleinvoiceid()        
+
+      
+      const O = Order.find({}, (err,result)=>{
+        console.log(result[result.length-1]);
       })
+
+      
+      
       
       var count = 0;
-      // fs.unlink(__dirname,'../../file/invoice-converted.pdf', () => {});
+      fs.unlink('../../file/Invoice.pdf', () => {});
       const inputpath = path.resolve(__dirname,'../../file/invoice-converted.pdf')
       const outputpath = path.resolve(__dirname,'../../file/Invoice.pdf')
-    
+      
       const textreplace =async()=>{        
-    const pdfDoc = await PDFNet.PDFDoc.createFromFilePath(inputpath);
-    await pdfDoc.initSecurityHandler();
+        const pdfDoc = await PDFNet.PDFDoc.createFromFilePath(inputpath);
+        await pdfDoc.initSecurityHandler();
     const replacer = await PDFNet.ContentReplacer.create();
     const page = await pdfDoc.getPage(1)
+
+     content = ""
+    var subtotal,total,discount ,tax = 0;
+    product.map((item, index) => {
+      product[index] = Object.assign(order, {
+        product: item._id,
+        quantity: item.quantity,
+        price: item.price,
+        color: item.color,
+      });
+      content = content + (index+1) + "\t" + item.name + "\t"+ item.price + "\t"+ item.quantity +"\n";
+      subtotal = subtotal + (item.price*item.quantity);
+      
+      product[index].status = "Pending";
+
+      const Booking = new Order(product[index]);
+      Booking.save().then((item) => {
+        if (item) {
+          count = count + 1;
+        } else {
+        }
+      });
+    });
+
 // console.log(Date().now());
-    await replacer.addString("invoiceno",'1')
+
+
+console.log(content);
+await replacer.addString("invoiceno",'4')
     await replacer.addString("date", '12')
-    await replacer.addString("name",order.name)
+    await replacer.addString("name",order.name + "        " + 'Khatri')
     await replacer.addString("postalcode",order.postalCode)
+
     await replacer.addString("number",order.mobile)
     await replacer.addString("address",order.address)
-    await replacer.addString("total",'23')
+    await replacer.addString("total",toString(total))
+    await replacer.addString("subtotal",toString(subtotal))
+    await replacer.addString("discount",toString(discount))
+    await replacer.addString("tax",toString(tax))
+    await replacer.addString("product",content)
+
     
     await replacer.process(page)
     pdfDoc.save(outputpath,PDFNet.SDFDoc.SaveOptions.e_linearized)
@@ -69,24 +105,7 @@ fs.readFile(outputpath,(err,data)=>{
       //       // const invoiceid = await Order.count({});
             
 
-            product.map((item, index) => {
-              product[index] = Object.assign(order, {
-                product: item._id,
-                quantity: item.quantity,
-                price: item.price,
-                color: item.color,
-              });
-              product[index].status = "Pending";
-
-              const Booking = new Order(product[index]);
-              Booking.save().then((item) => {
-                if (item) {
-                  count = count + 1;
-                } else {
-                }
-              });
-            });
-        
+            
       //send invoice to email
 
       let transporter = nodemailer.createTransport({
@@ -109,7 +128,7 @@ fs.readFile(outputpath,(err,data)=>{
         attachments: [
           {
             file: "invoice.pdf",
-            path: '../../file/Invoice.pdf'
+            path: __dirname+'../../file/Invoice.pdf'
           }
         ],
       };

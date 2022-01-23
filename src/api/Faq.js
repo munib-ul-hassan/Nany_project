@@ -80,6 +80,20 @@ router.delete("/", async (req, res) => {
 });
 router.get("/", async (req, res) => {
   try {
+    if(req.query){
+
+      faq.find(req.query, (err, result) => {
+        if (!result) {
+          res.status(200).send({ message: err.message, success: false });
+        } else {
+          res.status(200).send({
+            message: "Data get Successfully",
+            success: true,
+            data: result,
+          });
+        }
+      });
+    }else{
     faq.find({}, (err, result) => {
       if (!result) {
         res.status(200).send({ message: err.message, success: false });
@@ -90,7 +104,7 @@ router.get("/", async (req, res) => {
           data: result,
         });
       }
-    });
+    });}
   } catch (err) {
     res.status(400).json({ message: err.message, success: false });
   }
