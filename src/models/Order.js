@@ -24,6 +24,7 @@ const order = mongoose.Schema(
     color: String,
     order_note: String,
     status: String,
+    invoiceid:Number
   },
   { timestamps: true }
 );

@@ -22,12 +22,12 @@ var upload = multer({ storage: storage });
 
 router.post("/", upload.array("file"), async (req, res) => {
   try {
-    const { name, category, price } = req.body;
+    const { name, category, price, quantity } = req.body;
 
     if (req.files) {
       req.body.image = req.files[0] ? req.files[0].path : "";
     }
-    req.body.color = req.body.color.split(",");
+    req.body.colors = req.body.colors.split(",");
     if (!(name && category && price)) {
       res
         .status(200)
@@ -98,66 +98,12 @@ router.delete("/", async (req, res) => {
     res.status(400).json({ message: err.message, success: false });
   }
 });
+
 router.get("/", async (req, res) => {
   try {
-    const { Search, category, id } = req.query;
+    if(req.query){
 
-    if (Search) {
-      product.find(
-        {
-          name: {
-            $regex: Search,
-            $options: "i",
-          },
-        },
-        (err, result) => {
-          if (!result) {
-            res.status(200).send({ message: err.message, success: false });
-          } else {
-            res.status(200).send({
-              message: "Data get Successfully",
-              success: true,
-              data: result,
-            });
-          }
-        }
-      );
-    } else if (id) {
-      product.find(
-        {
-          _id: id,
-        },
-        (err, result) => {
-          if (!result) {
-            res.status(200).send({ message: err.message, success: false });
-          } else {
-            res.status(200).send({
-              message: "Data get Successfully",
-              success: true,
-              data: result,
-            });
-          }
-        }
-      );
-    } else if (category) {
-      product.find(
-        {
-          category: category,
-        },
-        (err, result) => {
-          if (!result) {
-            res.status(200).send({ message: err.message, success: false });
-          } else {
-            res.status(200).send({
-              message: "Data get Successfully",
-              success: true,
-              data: result,
-            });
-          }
-        }
-      );
-    } else {
-      product.find({}, (err, result) => {
+      product.find(req.query, (err, result) => {
         if (!result) {
           res.status(200).send({ message: err.message, success: false });
         } else {
@@ -168,7 +114,18 @@ router.get("/", async (req, res) => {
           });
         }
       });
-    }
+    }else{
+      product.find({}, (err, result) => {
+      if (!result) {
+        res.status(200).send({ message: err.message, success: false });
+      } else {
+        res.status(200).send({
+          message: "Data get Successfully",
+          success: true,
+          data: result,
+        });
+      }
+    });}
   } catch (err) {
     res.status(400).json({ message: err.message, success: false });
   }

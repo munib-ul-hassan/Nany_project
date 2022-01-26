@@ -3,7 +3,7 @@ const service = mongoose.Schema(
   {
     heading: String,
     paragraph: String,
-    btnLink: String,
+    
     image: String,
   },
   { timestamps: true }

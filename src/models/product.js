@@ -10,9 +10,11 @@ const product = mongoose.Schema(
     ],
     image: String,
     price: Number,
-    color: Array,
-    instock: Boolean,
+    colors: Array,
+    minQuantity:Number,
     quantity: Number,
+    SKU:String
+
   },
   { timestamps: true }
 );

@@ -4,11 +4,14 @@ const Order = require("../models/Order");
 const nodemailer = require("nodemailer");
 const path = require("path");
 const fs = require("fs");
-const {PDFNet} = require('@pdftron/pdfnet-node')
-const { verifyadmintoken, verifytoken } = require("../middleware/auth");  
+const { verifyadmintoken, verifytoken } = require("../middleware/auth");
+const pdftemplate = require("../../template/invoice");
+var easyinvoice = require("easyinvoice");
 
 router.post("/", async (req, res) => {
   try {
+    var date = Date().toLocaleString().split(" ");
+    date = date[1] + " " + date[2] + " " + date[3];
     const { order, product } = req.body;
     var re = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
     if (!(order && product)) {
@@ -18,144 +21,128 @@ router.post("/", async (req, res) => {
     } else if (!re.test(order.email)) {
       res.status(422).send({ message: "invlaid Email", success: false });
     } else {
-
-
-      
-      const O = Order.find({}, (err,result)=>{
-        console.log(result[result.length-1]);
-      })
-
-      
-      
-      
+      let options = { format: "A4" };
       var count = 0;
-      fs.unlink('../../file/Invoice.pdf', () => {});
-      const inputpath = path.resolve(__dirname,'../../file/invoice-converted.pdf')
-      const outputpath = path.resolve(__dirname,'../../file/Invoice.pdf')
-      
-      const textreplace =async()=>{        
-        const pdfDoc = await PDFNet.PDFDoc.createFromFilePath(inputpath);
-        await pdfDoc.initSecurityHandler();
-    const replacer = await PDFNet.ContentReplacer.create();
-    const page = await pdfDoc.getPage(1)
+      var invoiceid = 0;
+      Order.find({}, async (err, result) => {
+        invoiceid =
+          (await result[result.length - 1].invoiceid) > 0
+            ? result[result.length - 1].invoiceid + 1
+            : 1;
+        var invoiceproduct = [];
+        product.map((item, index) => {
+          invoiceproduct[index] = {
+            quantity: item.quantity,
+            description: item.name,
+            price: item.price,
+            "tax-rate": item.tax ? item.tax : 0,
+          };
+        });
 
-     content = ""
-    var subtotal,total,discount ,tax = 0;
-    product.map((item, index) => {
-      product[index] = Object.assign(order, {
-        product: item._id,
-        quantity: item.quantity,
-        price: item.price,
-        color: item.color,
-      });
-      content = content + (index+1) + "\t" + item.name + "\t"+ item.price + "\t"+ item.quantity +"\n";
-      subtotal = subtotal + (item.price*item.quantity);
-      
-      product[index].status = "Pending";
+        //Data of pdf
+        const data = {
+          images: {
+            logo: "https://firebasestorage.googleapis.com/v0/b/ssuetcorner-3803f.appspot.com/o/logo.png?alt=media&token=e7f3b8a9-4b21-4b12-8c76-e975bc94056c",
+          },
+          sender: {
+            company: "Care Inc",
+            address: "clineinfo@careinc.com",
+            zip: "+237 697187304",
+            country: "Samplecountry",
+            city: "www.careinc.com",
+          },
+          // Your recipient
+          client: {
+            company: order.name,
+            address: order.address,
+            zip: order.postalCode,
+            city: order.city,
+            country: order.country,
+          },
+          information: {
+            number: invoiceid,
+            "due-date": Date().toLocaleString().split(" ")[0],
+            date: date,
+          },
+          products: invoiceproduct,
+          setting: {
+            currency: "USD",
+            "tax-notation": "Tax",
+          },
+          translate: {
+            "due-date": "Day",
+          },
+        };
 
-      const Booking = new Order(product[index]);
-      Booking.save().then((item) => {
-        if (item) {
-          count = count + 1;
-        } else {
-        }
-      });
-    });
+        fs.unlink("invoice.pdf", () => {});
+        await easyinvoice.createInvoice(data, async function (result) {
+          await fs.writeFileSync("invoice.pdf", result.pdf, "base64");
+        });
+        product.map((item, index) => {
+          product[index] = Object.assign(order, {
+            product: item._id,
+            quantity: item.quantity,
+            price: item.price,
+            color: item.color,
+            invoiceid: invoiceid,
+          });
+          product[index].status = "Pending";
+          const Booking = new Order(product[index]);
+          Booking.save().then((item) => {
+            if (item) {
+              count = count + 1;
+            } else {
+            }
+          });
+        });
 
-// console.log(Date().now());
+        let transporter = nodemailer.createTransport({
+          host: "smtp.gmail.com",
+          port: 587,
+          secure: false,
+          requireTLS: false,
 
+          auth: {
+            user: process.env.email, // generated ethereal user
+            pass: process.env.password, // generated ethereal password
+          },
+        });
+        const mailOption = {
+          from: process.env.email,
+          to: order.email, // sender address
 
-console.log(content);
-await replacer.addString("invoiceno",'4')
-    await replacer.addString("date", '12')
-    await replacer.addString("name",order.name + "        " + 'Khatri')
-    await replacer.addString("postalcode",order.postalCode)
+          subject: "Invoice for your order", // Subject line
 
-    await replacer.addString("number",order.mobile)
-    await replacer.addString("address",order.address)
-    await replacer.addString("total",toString(total))
-    await replacer.addString("subtotal",toString(subtotal))
-    await replacer.addString("discount",toString(discount))
-    await replacer.addString("tax",toString(tax))
-    await replacer.addString("product",content)
+          attachments: [{ filename: "invoice.pdf", path: "./invoice.pdf" }],
+        };
 
-    
-    await replacer.process(page)
-    pdfDoc.save(outputpath,PDFNet.SDFDoc.SaveOptions.e_linearized)
-
-}
-
-PDFNet.runWithCleanup(textreplace,"demo:1641127981940:7b5ef390030000000067b17cad66d1fa23446ceda8e6cef1d73fff0305").then(()=>{
-fs.readFile(outputpath,(err,data)=>{
-  if(err){
-  console.log(err);
-  }else{
-    console.log(data);
-  }
-})
-})
-
-      
-      // pdf
-      //   .create(pdftemplate(req.body), {})
-      //   .toFile(__dirname + "/invoice.pdf", (err) => {
-      //     if (err) {
-      //       res.status(200).send({ message: err, success: false });
-      //     } else {
-      //       // const invoiceid = await Order.count({});
-            
-
-            
-      //send invoice to email
-
-      let transporter = nodemailer.createTransport({
-        host: "smtp.gmail.com",
-        port: 587,
-        secure: false,
-        requireTLS: false,
-
-        auth: {
-          user: process.env.email, // generated ethereal user
-          pass: process.env.password, // generated ethereal password
-        },
-      });
-      const mailOption = {
-        from: process.env.email,
-        to: order.email, // sender address
-
-        subject: "Invoice for your order", // Subject line
-
-        attachments: [
-          {
-            file: "invoice.pdf",
-            path: __dirname+'../../file/Invoice.pdf'
-          }
-        ],
-      };
-
-      await transporter.sendMail(mailOption, (err, info) => {
-        if (err) {
-          res.send(err);
-        } else {
-          if (count == product.length) {
-            res.status(200).send({
-              message: "Data save into Database",
-              success: true,
-            });
+        await transporter.sendMail(mailOption, (err, info) => {
+          if (err) {
+            res.send(err);
           } else {
-            res.status(200).send({
-              message:
-                product.length - count + " orders are saved other was rejected",
-              success: true,
-            });
+            if (count == product.length) {
+              res.status(200).send({
+                message: "Data save into Database",
+                success: true,
+              });
+            } else {
+              res.status(200).send({
+                message:
+                  product.length -
+                  count +
+                  " orders are saved other was rejected",
+                success: true,
+              });
+            }
           }
-        }
+        });
       });
     }
   } catch (err) {
     res.status(400).json({ message: err.message, success: false });
   }
 });
+
 router.put("/:id", verifytoken, async (req, res) => {
   try {
     const { id } = req.params;
