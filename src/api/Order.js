@@ -5,7 +5,7 @@ const nodemailer = require("nodemailer");
 const path = require("path");
 const fs = require("fs");
 const { verifyadmintoken, verifytoken } = require("../middleware/auth");
-const pdftemplate = require("../../template/invoice");
+
 var easyinvoice = require("easyinvoice");
 
 router.post("/", async (req, res) => {
@@ -189,7 +189,7 @@ router.delete("/", async (req, res) => {
 });
 router.get("/", async (req, res) => {
   try {
-    if (!req.query) {
+    if (req.query) {
       Order.find(req.query, (err, result) => {
         if (!result) {
           res.status(200).send({ message: err.message, success: false });

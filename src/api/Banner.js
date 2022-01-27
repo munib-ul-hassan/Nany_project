@@ -19,10 +19,12 @@ const storage = multer.diskStorage({
 
 var upload = multer({ storage: storage });
 
-router.post("/", upload.single("file"), async (req, res) => {
+router.post("/web", upload.single("file"), async (req, res) => {
   try {
-    if (req.files.length > 0) {
+    console.log(req.file);
+    if (req.file) {
       req.body.image = req.file.path;
+      req.body.tag = "web"
       const Banner = new banner(req.body);
       Banner.save().then((item) => {
         res.status(200).send({
@@ -40,7 +42,7 @@ router.post("/", upload.single("file"), async (req, res) => {
     res.status(400).json({ message: err.message, success: false });
   }
 });
-router.put("/:id", upload.array("file"), async (req, res) => {
+router.put("/:id", upload.single("file"), async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -49,9 +51,9 @@ router.put("/:id", upload.array("file"), async (req, res) => {
     } else {
       banner.findById({ _id: id }, (err, result) => {
         if (result) {
-          if(result.Bgimage){
-          fs.unlink(result.Bgimage, () => {});}
-          req.body.image = req.files[0].path;
+          if(result.image){
+          fs.unlink(result.image, () => {});}
+          req.body.image = req.file.path;
           banner.updateOne({ _id: id }, req.body, (err, result) => {
             if (err) {
               res.status(200).send({ message: err.message, success: false });
@@ -84,8 +86,8 @@ router.delete("/", async (req, res) => {
       banner.findOne({ _id: id }, (err, result) => {
         if (result) {
 
-          if(result.Bgimage){
-          fs.unlink(result.Bgimage, () => {});
+          if(result.image){
+          fs.unlink(result.image, () => {});
         }
 
           banner.deleteOne({ _id: id }, (err, result) => {
@@ -108,42 +110,60 @@ router.delete("/", async (req, res) => {
     res.status(400).json({ message: err.message, success: false });
   }
 });
-router.get("/", async (req, res) => {
+router.get("/web", async (req, res) => {
   try {
-    const { Search } = req.query;
-    if (Search) {
-      banner.find(
-        {
-          Bt1: {
-            $regex: Search,
-            $options: "i",
-          },
-        },
-        (err, result) => {
-          if (!result) {
-            res.status(200).send({ message: err.message, success: false });
-          } else {
-            res.status(200).send({
-              message: "Data get Successfully",
-              success: true,
-              data: result,
-            });
-          }
-        }
-      );
-    } else {
-      banner.find({}, (err, result) => {
-        if (!result) {
-          res.status(200).send({ message: err.message, success: false });
-        } else {
-          res.status(200).send({
-            message: "Data get Successfully",
-            success: true,
-            data: result,
-          });
-        }
+    req.query.tag = "web"
+    banner.find(req.query,(err,result)=>{
+      if (!result) {
+        res.status(200).send({ message: err.message, success: false });
+      } else {
+        res.status(200).send({
+          message: "Data get Successfully",
+          success: true,
+          data: result,
+        });
+      }
+    })
+  } catch (err) {
+    res.status(400).json({ message: err.message, success: false });
+  }
+});
+router.post("/mobile", upload.single("file"), async (req, res) => {
+  try {
+    if (req.file) {
+      req.body.image = req.file.path;
+      req.body.tag = "mobile";
+      const Banner = new banner(req.body);
+      Banner.save().then((item) => {
+        res.status(200).send({
+          message: "Data save into Database",
+          data: item,
+          success: true,
+        });
       });
+    } else {
+      res
+        .status(200)
+        .send({ message: "All input is required", success: false });
     }
+  } catch (err) {
+    res.status(400).json({ message: err.message, success: false });
+  }
+});
+router.get("/mobile", async (req, res) => {
+  try {
+    req.query.tag = "mobile"
+    banner.find(req.query,(err,result)=>{
+      if (!result) {
+        res.status(200).send({ message: err.message, success: false });
+      } else {
+        res.status(200).send({
+          message: "Data get Successfully",
+          success: true,
+          data: result,
+        });
+      }
+    })
   } catch (err) {
     res.status(400).json({ message: err.message, success: false });
   }
