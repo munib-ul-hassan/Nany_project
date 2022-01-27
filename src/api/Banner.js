@@ -21,7 +21,7 @@ var upload = multer({ storage: storage });
 
 router.post("/web", upload.single("file"), async (req, res) => {
   try {
-    console.log(req.file);
+    
     if (req.file) {
       req.body.image = req.file.path;
       req.body.tag = "web"
