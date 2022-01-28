@@ -19,32 +19,22 @@ const storage = multer.diskStorage({
 
 var upload = multer({ storage: storage });
 
-router.post("/", upload.array("file"), async (req, res) => {
+router.post("/", upload.single("file"), async (req, res) => {
   try {
+    const { text, heading } = req.body;
     HIwork.find({}, async (err, result) => {
-      if (result.length > 0) {
+      console.log(result.length < 3);
+      if (result.length > 3) {
         res
           .status(200)
           .send({ message: "First delete data then post", success: false });
       } else {
-        req.body.works = JSON.parse(req.body.works);
-        const { text, works } = req.body;
-
-        if (!(text && works)) {
+        if (!(text && heading)) {
           res
             .status(200)
             .send({ message: "All input is required", success: false });
         } else {
-          content = [];
-
-          for (var i = 0; i < works.length; i++) {
-            content.push({
-              text: works[i].text || " ",
-              icon: req.files ? req.files[i].path : "",
-            });
-          }
-
-          req.body.works = content;
+          req.body.icon = req.file.path;
 
           const hiwork = new HIwork(req.body);
           hiwork.save().then((item) => {
@@ -68,14 +58,20 @@ router.put("/:id", async (req, res) => {
     if (!id) {
       res.status(200).send({ message: "id is not specify", success: false });
     } else {
-      HIwork.updateOne({ _id: id }, req.body, (err, result) => {
-        if (err) {
-          res.status(200).send({ message: err.message, success: false });
+      HIwork.find({}, (err, result) => {
+        if (!result) {
+          res.status(200).send({ message: "Data not Exist", success: false });
         } else {
-          res.status(200).send({
-            message: "Data updated Successfully",
-            success: true,
-            data: result,
+          HIwork.updateOne({ _id: id }, req.body, (err, result) => {
+            if (err) {
+              res.status(200).send({ message: err.message, success: false });
+            } else {
+              res.status(200).send({
+                message: "Data updated Successfully",
+                success: true,
+                data: result,
+              });
+            }
           });
         }
       });
@@ -92,10 +88,8 @@ router.delete("/", async (req, res) => {
     } else {
       HIwork.findOne({ _id: id }, (err, result) => {
         if (result) {
-          result.works.map((item) => {
-            if(item.icon){
-            fs.unlink(item.icon, () => {});}
-          });
+          fs.unlink(result.icon, () => {});
+
           HIwork.deleteOne({ _id: id }, (err, result) => {
             if (!result) {
               res.status(200).send({ message: err.message, success: false });

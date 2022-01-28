@@ -47,6 +47,7 @@ const Websetting = require("./src/api/Websetting");
 const booking = require("./src/api/Booking");
 const query = require("./src/api/Queries");
 const splashscreen = require("./src/api/SplashScreen");
+const attribute = require('./src/api/Attribute')
 //set path
 
 app.use("/uploads", express.static("uploads"));
@@ -67,7 +68,7 @@ app.use("/Websetting", Websetting);
 app.use("/booking", booking);
 app.use("/query", query);
 app.use("/splashscreen", splashscreen);
-
+app.use("/attribute", attribute)
 ///get image
 // app.get('/:url', async (req, res) => {
 //   const fileRef = admin.storage().bucket().file(req.params.url);

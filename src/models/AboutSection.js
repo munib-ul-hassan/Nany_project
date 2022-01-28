@@ -3,8 +3,15 @@ const about = mongoose.Schema(
   {
     text: String,
     video: String,
-    sections: {},
-  },
+    img1: String,
+    img2: String,
+    img3: String,
+    img4: String,
+    txt1: String,
+    txt2: String,
+    txt3: String,
+    txt4: String
+   },
   { timestamps: true }
 );
 

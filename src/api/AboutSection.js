@@ -5,8 +5,6 @@ const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
 
-
-
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, "uploads/about/");
@@ -29,19 +27,15 @@ router.post("/", upload.array("file"), async (req, res) => {
           .status(200)
           .send({ message: "first delete data then post", success: false });
       } else {
-        req.body.sections = JSON.parse(req.body.sections);
-        const { sections, text } = req.body;
+        const { text, txt1, txt2, txt3, txt4 } = req.body;
         if (req.files.length > 0) {
           req.body.video = req.files[0] ? req.files[0].path : "";
-          req.files.map(async (item, index) => {
-            if (index < req.body.sections.length) {
-              req.body.sections[index].image = req.files[index + 1]
-                ? req.files[index + 1].path
-                : "";
-            }
-          });
+          req.body.img1 = req.files[1] ? req.files[1].path : "";
+          req.body.img2 = req.files[2] ? req.files[2].path : "";
+          req.body.img3 = req.files[3] ? req.files[3].path : "";
+          req.body.img4 = req.files[4] ? req.files[4].path : "";
         }
-        if (!(sections && text)) {
+        if (!(text && txt1 && txt2 && txt3 && txt4)) {
           res
             .status(200)
             .send({ message: "All input is required", success: false });
@@ -62,21 +56,38 @@ router.post("/", upload.array("file"), async (req, res) => {
     res.status(400).json({ message: err.message, success: false });
   }
 });
-router.put("/:id", async (req, res) => {
+router.put("/:id", upload.array("file"), async (req, res) => {
   try {
+    const value = Object.values(req.body);
     const { id } = req.params;
-
+    var body = {};
+    if (req.files.length > 0) {
+      req.files.map((item, index) => {
+        if (value[index]) {
+          body[value[index]] = item.path;
+        }
+      });
+    }
     if (!id) {
       res.status(200).send({ message: "id is not specify", success: false });
     } else {
-      about.updateOne({ _id: id }, req.body, (err, result) => {
-        if (err) {
-          res.status(200).send({ message: err.message, success: false });
+      about.findOne({ _id: id }, (err, result) => {
+        if (!result) {
+          res.status(200).send({ message: "No Data Exist", success: false });
         } else {
-          res.status(200).send({
-            message: "Data updated Successfully",
-            success: true,
-            data: result,
+          value.map((item, index) => {
+            fs.unlink(result[item], () => {});
+          });
+          about.updateOne({ _id: id }, body, (err, result) => {
+            if (err) {
+              res.status(200).send({ message: err.message, success: false });
+            } else {
+              res.status(200).send({
+                message: "Data updated Successfully",
+                success: true,
+                data: result,
+              });
+            }
           });
         }
       });
@@ -93,14 +104,15 @@ router.delete("/", async (req, res) => {
     } else {
       about.findOne({ _id: id }, (err, result) => {
         if (result) {
-          if(result.video){
-          fs.unlink(result.video, () => {});}
-          result.sections.map((item) => {
-            if(item.image){
+          if (result.video) {
+            fs.unlink(result.video, () => {});
+          }
+          // result.sections.map((item) => {
+          //   if(item.image){
 
-              fs.unlink(item.image, () => {});
-            }
-          });
+          //     fs.unlink(item.image, () => {});
+          //   }
+          // });
           about.deleteOne({ _id: id }, (err, result) => {
             if (!result) {
               res.status(200).send({ message: err.message, success: false });

@@ -1,13 +1,10 @@
 const mongoose = require("mongoose");
 const Howitworks = mongoose.Schema(
   {
-    text: String,
-    works: [
-      {
-        icon: String,
-        text: String,
-      },
-    ],
+    icon:String,
+    heading:String,
+    text:String
+    
   },
   { timestamps: true }
 );
