@@ -8,6 +8,13 @@ const product = mongoose.Schema(
         ref: "category",
       },
     ],
+    color: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "color",
+      },
+    ],
+    size: [],
     image: String,
     price: Number,
     colors: Array,

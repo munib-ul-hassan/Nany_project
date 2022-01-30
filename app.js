@@ -48,6 +48,8 @@ const booking = require("./src/api/Booking");
 const query = require("./src/api/Queries");
 const splashscreen = require("./src/api/SplashScreen");
 const attribute = require('./src/api/Attribute')
+const color = require('./src/api/Colors')
+
 //set path
 
 app.use("/uploads", express.static("uploads"));
@@ -69,6 +71,8 @@ app.use("/booking", booking);
 app.use("/query", query);
 app.use("/splashscreen", splashscreen);
 app.use("/attribute", attribute)
+app.use("/color", color)
+
 ///get image
 // app.get('/:url', async (req, res) => {
 //   const fileRef = admin.storage().bucket().file(req.params.url);
