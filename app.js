@@ -37,7 +37,7 @@ const about = require("./src/api/AboutSection");
 const Service = require("./src/api/Service");
 const price = require("./src/api/Pricing");
 const Works = require("./src/api/Howitworks");
-const market = require("./src/api/Market");
+const market = require("./src/api/Employer");
 const faq = require("./src/api/Faq");
 const contact = require("./src/api/Contact");
 const category = require("./src/api/Category");
@@ -49,7 +49,8 @@ const query = require("./src/api/Queries");
 const splashscreen = require("./src/api/SplashScreen");
 const attribute = require('./src/api/Attribute')
 const color = require('./src/api/Colors')
-
+const customer = require('./src/api/Customer')
+const employer = require('./src/api/Employer')
 //set path
 
 app.use("/uploads", express.static("uploads"));
@@ -60,7 +61,8 @@ app.use("/about", about);
 app.use("/Service", Service);
 app.use("/Price", price);
 app.use("/Work", Works);
-app.use("/market", market);
+app.use("/customer", customer);
+app.use("/employer", employer);
 app.use("/faq", faq);
 app.use("/contact", contact);
 app.use("/category", category);
