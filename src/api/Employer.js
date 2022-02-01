@@ -82,7 +82,13 @@ router.put("/:id", upload.single("file"), async (req, res) => {
                   });
                 }})
         
-              }})
+              }else{
+                res.status(200).send({
+                    message: "Data Not exist",
+                    success: false
+                    
+                  });
+            }})
           }
       
         

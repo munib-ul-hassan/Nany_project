@@ -1,13 +1,13 @@
 const express = require("express");
 const router = express.Router();
-const Websetting = require("../models/Websetting");
+const { setting } = require("../models/Websetting");
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, "uploads/Websetting/");
+    cb(null, "uploads/websetting/");
   },
 
   filename: function (req, file, cb) {
@@ -27,7 +27,12 @@ router.post("/", upload.array("file"), async (req, res) => {
       W_Meta_Description,
       W_Meta,
       W_About,
-      Social_links,
+      fb,
+      linkedin,
+      twitter,
+      google,
+      ios_app,
+      android_app,
       Address,
       Phone,
       Email,
@@ -41,13 +46,19 @@ router.post("/", upload.array("file"), async (req, res) => {
       req.body.H_Logo = req.files[0] ? req.files[0].path : "";
       req.body.F_Logo = req.files[1] ? req.files[1].path : "";
     }
+
     if (
       !(
         W_name &&
         W_Meta_Description &&
         W_Meta &&
         W_About &&
-        Social_links &&
+        fb &&
+        linkedin &&
+        twitter &&
+        google &&
+        ios_app &&
+        android_app &&
         Address &&
         Phone &&
         Email
@@ -57,13 +68,22 @@ router.post("/", upload.array("file"), async (req, res) => {
         .status(200)
         .send({ message: "All input is required", success: false });
     } else {
-      const web = new Websetting(req.body);
-      web.save().then((item) => {
-        res.status(200).send({
-          message: "Data save into Database",
-          data: item,
-          success: true,
-        });
+      setting.find({}, (err, result) => {
+        if (result.length > 0) {
+          res.status(200).send({
+            message: "First delete then add new data",
+            success: false,
+          });
+        } else {
+          const web = new setting(req.body);
+          web.save().then((item) => {
+            res.status(200).send({
+              message: "Data save into Database",
+              data: item,
+              success: true,
+            });
+          });
+        }
       });
     }
   } catch (err) {
@@ -71,27 +91,45 @@ router.post("/", upload.array("file"), async (req, res) => {
   }
 });
 
-router.put("/:id", async (req, res) => {
+router.put("/:id", upload.array("file"), async (req, res) => {
   try {
     const { id } = req.params;
     if (!id) {
       res.status(200).send({ message: "id is not specify", success: false });
     } else {
       if (req.body.Email) {
-      }
-      var re = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
-      if (!re.test(req.body.Email)) {
-        res.status(422).send({ message: "invlaid Email", success: false });
+        var re = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+        if (!re.test(req.body.Email)) {
+          res.status(422).send({ message: "invlaid Email", success: false });
+        }
       }
 
-      Websetting.updateOne({ _id: id }, req.body, (err, result) => {
-        if (err) {
+      setting.findOne({ _id: id }, req.body, (err, result) => {
+        if (!result) {
           res.status(200).send({ message: err.message, success: false });
         } else {
-          res.status(200).send({
-            message: "Data updated Successfully",
-            success: true,
-            data: result,
+          if (req.files.length > 0) {
+            if (req.files[0] && result.H_Logo) {
+              req.body.H_Logo = req.files[0].path;
+              fs.unlink(result.H_Logo, () => {});
+            }
+            if (req.files[1] && result.F_Logo) {
+              req.body.F_Logo = req.files[1].path;
+
+              fs.unlink(result.F_Logo, () => {});
+            }
+          }
+          setting.updateOne({ _id: id }, req.body, (err, result) => {
+            if (err) {
+              res.status(200).send({ message: err.message, success: false });
+            } else {
+              console.log(result);
+              res.status(200).send({
+                message: "Data updated Successfully",
+                success: true,
+                data: result,
+              });
+            }
           });
         }
       });
@@ -106,14 +144,16 @@ router.delete("/", async (req, res) => {
     if (!id) {
       res.status(200).send({ message: "id is not specify", success: false });
     } else {
-      Websetting.findOne({ _id: id }, (err, result) => {
+      setting.findOne({ _id: id }, (err, result) => {
         if (result) {
-          if(result.H_Logo){
-            fs.unlink(result.H_Logo, () => {});}
-            if(result.F_Logo){
-              fs.unlink(result.F_Logo, () => {});}
-          
-          Websetting.deleteOne({ _id: id }, (err, result) => {
+          if (result.H_Logo) {
+            fs.unlink(result.H_Logo, () => {});
+          }
+          if (result.F_Logo) {
+            fs.unlink(result.F_Logo, () => {});
+          }
+
+          setting.deleteOne({ _id: id }, (err, result) => {
             if (!result) {
               res.status(200).send({ message: err.message, success: false });
             } else {
@@ -135,29 +175,20 @@ router.delete("/", async (req, res) => {
 });
 router.get("/", async (req, res) => {
   try {
-    const { Search } = req.query;
-    if (Search) {
-      Websetting.find(
-        {
-          Email: {
-            $regex: Search,
-            $options: "i",
-          },
-        },
-        (err, result) => {
-          if (!result) {
-            res.status(200).send({ message: err.message, success: false });
-          } else {
-            res.status(200).send({
-              message: "Data get Successfully",
-              success: true,
-              data: result,
-            });
-          }
+    if (req.query) {
+      setting.find(req.query, (err, result) => {
+        if (!result) {
+          res.status(200).send({ message: err.message, success: false });
+        } else {
+          res.status(200).send({
+            message: "Data get Successfully",
+            success: true,
+            data: result,
+          });
         }
-      );
+      });
     } else {
-      Websetting.find({}, (err, result) => {
+      setting.find({}, (err, result) => {
         if (!result) {
           res.status(200).send({ message: err.message, success: false });
         } else {

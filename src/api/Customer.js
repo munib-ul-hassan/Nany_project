@@ -77,7 +77,13 @@ router.put("/:id", upload.single("file"), async (req, res) => {
             
             
             })
-        }
+        }else{
+          res.status(200).send({
+              message: "Data Not exist",
+              success: false
+              
+            });
+      }
             })
      
     }
@@ -109,9 +115,13 @@ router.delete("/", async (req, res) => {
               });
             }
           });
-        } else {
-          res.status(200).send({ message: err.message, success: false });
-        }
+        } else{
+          res.status(200).send({
+              message: "Data Not exist",
+              success: false
+              
+            });
+      }
       });
     }
   } catch (err) {
