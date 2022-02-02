@@ -25,12 +25,12 @@ router.post("/", async (req, res) => {
       var count = 0;
       var invoiceid = 0;
       Order.find({}, async (err, result) => {
-        invoiceid =
-          (await result[result.length - 1].invoiceid) > 0
-            ? result[result.length - 1].invoiceid + 1
-            : 1;
-        var invoiceproduct = [];
-        product.map((item, index) => {
+        if(result[result.length - 1]){
+          invoiceid =  (await result[result.length - 1].invoiceid) > 0 ? result[result.length   - 1].invoiceid + 1
+          : 1;
+        }
+          var invoiceproduct = [];
+          product.map((item, index) => {
           invoiceproduct[index] = {
             quantity: item.quantity,
             description: item.name,
