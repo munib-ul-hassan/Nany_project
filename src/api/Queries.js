@@ -88,8 +88,8 @@ router.delete("/", async (req, res) => {
 });
 router.get("/", async (req, res) => {
   try {
-    if (!req.query) {
-      queries.find({}, (err, result) => {
+    if (req.query) {
+      queries.find(req.query, (err, result) => {
         if (!result) {
           res.status(200).send({ message: err.message, success: false });
         } else {
@@ -101,7 +101,7 @@ router.get("/", async (req, res) => {
         }
       });
     } else {
-      queries.find(req.query, (err, result) => {
+      queries.find({}, (err, result) => {
         if (!result) {
           res.status(200).send({ message: err.message, success: false });
         } else {

@@ -9,12 +9,7 @@ const order = mongoose.Schema(
     country: String,
     postalCode: Number,
     quantity: Number,
-    product: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "product",
-      },
-    ],
+    products: [],
     user: [
       {
         type: mongoose.Schema.Types.ObjectId,
@@ -24,7 +19,7 @@ const order = mongoose.Schema(
     color: String,
     order_note: String,
     status: String,
-    invoiceid:Number
+    invoiceid: Number,
   },
   { timestamps: true }
 );

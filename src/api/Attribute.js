@@ -34,7 +34,6 @@ router.post("/", async (req, res) => {
 
 router.post("/value", async (req, res) => {
   try {
-    console.log(req.body);
     attribute.findOne({ _id: req.body.attribute }, async (err, result) => {
       if (result) {
         value.findOne(req.body, async (err, result) => {

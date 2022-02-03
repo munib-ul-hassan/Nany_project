@@ -19,15 +19,36 @@ const storage = multer.diskStorage({
 });
 
 var upload = multer({ storage: storage });
-
+const AWS = require("aws-sdk");
+const s3 = new AWS.S3({
+  accessKeyId: process.env.ID,
+  secretAccessKey: process.env.SECRET,
+});
 router.post("/", upload.single("file"), async (req, res) => {
   try {
     const { text, button_text, link } = req.body;
-    if (req.file.length > 0 && !(text && button_text && link)) {
+
+    if (!req.file || !(text && button_text && link)) {
       res
         .status(200)
         .send({ message: "All input is required", success: false });
     } else {
+      const params = {
+        Bucket: process.env.BUCKET_NAME,
+        Key: req.file.filename, // File name you want to save as in S3
+        Body: fs.readFileSync(req.file.path),
+      };
+
+      // Uploading files to the bucket
+      // s3.upload(params, function (err, data) {
+      //   if (err) {
+      //     throw err;
+      //   }
+      // });
+      // const respose = await s3.listObjectsV2({
+      //   Bucket: process.env.BUCKET_NAME,
+      // }).promise();
+      // console.log(respose);
       req.body.image = req.file.path;
 
       topheader.find({}, (err, result) => {
@@ -59,8 +80,8 @@ router.put("/:id", upload.single("file"), async (req, res) => {
       res.status(200).send({ message: "id is not specify", success: false });
     } else {
       topheader.findOne({ _id: id }, (err, result) => {
-        if (err) {
-          res.status(200).send({ message: err.message, success: false });
+        if (!result) {
+          res.status(200).send({ message: "No Data Exist", success: false });
         } else {
           if (req.file) {
             if (result.image) {
@@ -121,40 +142,17 @@ router.delete("/", async (req, res) => {
 });
 router.get("/", async (req, res) => {
   try {
-    const { Search } = req.query;
-    if (Search) {
-      topheader.find(
-        {
-          text: {
-            $regex: Search,
-            $options: "i",
-          },
-        },
-        (err, result) => {
-          if (!result) {
-            res.status(200).send({ message: err.message, success: false });
-          } else {
-            res.status(200).send({
-              message: "Data get Successfully",
-              success: true,
-              data: result,
-            });
-          }
-        }
-      );
-    } else {
-      topheader.find({}, (err, result) => {
-        if (!result) {
-          res.status(200).send({ message: err.message, success: false });
-        } else {
-          res.status(200).send({
-            message: "Data get Successfully",
-            success: true,
-            data: result,
-          });
-        }
-      });
-    }
+    topheader.find({}, (err, result) => {
+      if (!result) {
+        res.status(200).send({ message: err.message, success: false });
+      } else {
+        res.status(200).send({
+          message: "Data get Successfully",
+          success: true,
+          data: result,
+        });
+      }
+    });
   } catch (err) {
     res.status(400).json({ message: err.message, success: false });
   }

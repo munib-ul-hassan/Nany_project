@@ -21,10 +21,9 @@ var upload = multer({ storage: storage });
 
 router.post("/web", upload.single("file"), async (req, res) => {
   try {
-    
     if (req.file) {
       req.body.image = req.file.path;
-      req.body.tag = "web"
+      req.body.tag = "web";
       const Banner = new banner(req.body);
       Banner.save().then((item) => {
         res.status(200).send({
@@ -51,8 +50,9 @@ router.put("/:id", upload.single("file"), async (req, res) => {
     } else {
       banner.findById({ _id: id }, (err, result) => {
         if (result) {
-          if(result.image){
-          fs.unlink(result.image, () => {});}
+          if (result.image) {
+            fs.unlink(result.image, () => {});
+          }
           req.body.image = req.file.path;
           banner.updateOne({ _id: id }, req.body, (err, result) => {
             if (err) {
@@ -66,9 +66,7 @@ router.put("/:id", upload.single("file"), async (req, res) => {
             }
           });
         } else {
-          res
-            .status(200)
-            .send({ message: "id is not specify", success: false });
+          res.status(200).send({ message: "No Data Exist", success: false });
         }
       });
     }
@@ -85,10 +83,9 @@ router.delete("/", async (req, res) => {
     } else {
       banner.findOne({ _id: id }, (err, result) => {
         if (result) {
-
-          if(result.image){
-          fs.unlink(result.image, () => {});
-        }
+          if (result.image) {
+            fs.unlink(result.image, () => {});
+          }
 
           banner.deleteOne({ _id: id }, (err, result) => {
             if (!result) {
@@ -112,8 +109,8 @@ router.delete("/", async (req, res) => {
 });
 router.get("/web", async (req, res) => {
   try {
-    req.query.tag = "web"
-    banner.find(req.query,(err,result)=>{
+    req.query.tag = "web";
+    banner.find(req.query, (err, result) => {
       if (!result) {
         res.status(200).send({ message: err.message, success: false });
       } else {
@@ -123,7 +120,7 @@ router.get("/web", async (req, res) => {
           data: result,
         });
       }
-    })
+    });
   } catch (err) {
     res.status(400).json({ message: err.message, success: false });
   }
@@ -152,8 +149,8 @@ router.post("/mobile", upload.single("file"), async (req, res) => {
 });
 router.get("/mobile", async (req, res) => {
   try {
-    req.query.tag = "mobile"
-    banner.find(req.query,(err,result)=>{
+    req.query.tag = "mobile";
+    banner.find(req.query, (err, result) => {
       if (!result) {
         res.status(200).send({ message: err.message, success: false });
       } else {
@@ -163,7 +160,7 @@ router.get("/mobile", async (req, res) => {
           data: result,
         });
       }
-    })
+    });
   } catch (err) {
     res.status(400).json({ message: err.message, success: false });
   }

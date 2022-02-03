@@ -83,27 +83,18 @@ router.delete("/", async (req, res) => {
 });
 router.get("/", async (req, res) => {
   try {
-    const { Search } = req.query;
-    if (Search) {
-      price.find(
-        {
-          text: {
-            $regex: Search,
-            $options: "i",
-          },
-        },
-        (err, result) => {
-          if (!result) {
-            res.status(200).send({ message: err.message, success: false });
-          } else {
-            res.status(200).send({
-              message: "Data get Successfully",
-              success: true,
-              data: result,
-            });
-          }
+    if (req.query) {
+      price.find(req.query, (err, result) => {
+        if (!result) {
+          res.status(200).send({ message: err.message, success: false });
+        } else {
+          res.status(200).send({
+            message: "Data get Successfully",
+            success: true,
+            data: result,
+          });
         }
-      );
+      });
     } else {
       price.find({}, (err, result) => {
         if (!result) {

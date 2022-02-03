@@ -23,7 +23,6 @@ router.post("/", upload.single("file"), async (req, res) => {
   try {
     const { text, heading } = req.body;
     HIwork.find({}, async (err, result) => {
-      console.log(result.length < 3);
       if (result.length > 3) {
         res
           .status(200)
@@ -51,17 +50,21 @@ router.post("/", upload.single("file"), async (req, res) => {
     res.status(400).json({ message: err.message, success: false });
   }
 });
-router.put("/:id", async (req, res) => {
+router.put("/:id", upload.single("file"), async (req, res) => {
   try {
     const { id } = req.params;
 
     if (!id) {
       res.status(200).send({ message: "id is not specify", success: false });
     } else {
-      HIwork.find({}, (err, result) => {
+      HIwork.findOne({ _id: id }, (err, result) => {
         if (!result) {
           res.status(200).send({ message: "Data not Exist", success: false });
         } else {
+          if (req.file) {
+            result.icon ? fs.unlink(result.icon, () => {}) : null;
+            req.body.icon = req.file.path;
+          }
           HIwork.updateOne({ _id: id }, req.body, (err, result) => {
             if (err) {
               res.status(200).send({ message: err.message, success: false });
@@ -92,7 +95,9 @@ router.delete("/", async (req, res) => {
 
           HIwork.deleteOne({ _id: id }, (err, result) => {
             if (!result) {
-              res.status(200).send({ message: err.message, success: false });
+              res
+                .status(200)
+                .send({ message: "No Data Exist", success: false });
             } else {
               res.status(200).send({
                 message: "Data deleted Successfully",
@@ -112,27 +117,18 @@ router.delete("/", async (req, res) => {
 });
 router.get("/", async (req, res) => {
   try {
-    const { Search } = req.query;
-    if (Search) {
-      HIwork.find(
-        {
-          text: {
-            $regex: Search,
-            $options: "i",
-          },
-        },
-        (err, result) => {
-          if (!result) {
-            res.status(200).send({ message: err.message, success: false });
-          } else {
-            res.status(200).send({
-              message: "Data get Successfully",
-              success: true,
-              data: result,
-            });
-          }
+    if (req.query) {
+      HIwork.find(req.query, (err, result) => {
+        if (!result) {
+          res.status(200).send({ message: err.message, success: false });
+        } else {
+          res.status(200).send({
+            message: "Data get Successfully",
+            success: true,
+            data: result,
+          });
         }
-      );
+      });
     } else {
       HIwork.find({}, (err, result) => {
         if (!result) {

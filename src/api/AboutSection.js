@@ -135,15 +135,10 @@ router.delete("/", async (req, res) => {
 });
 router.get("/", async (req, res) => {
   try {
-    const { Search } = req.query;
-    if (Search) {
+    
+    if (req.query) {
       about.find(
-        {
-          heading1: {
-            $regex: Search,
-            $options: "i",
-          },
-        },
+        req.query,
         (err, result) => {
           if (!result) {
             res.status(200).send({ message: err.message, success: false });

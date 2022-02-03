@@ -6,27 +6,29 @@ const colors = require("../models/Colors");
 router.post("/", async (req, res) => {
   try {
     req.body.color = req.body.color.toLowerCase();
-    const {color,code}= req.body
+    const { color, code } = req.body;
 
     if (!(color && code)) {
       res
         .status(200)
         .send({ message: "All input is required", success: false });
     } else {
-        colors.findOne({ color: color }, (err, result) => {
-            if (result) {
-              res.status(200).send({ message: "Color ALready exist", success: false });
-            } else {
-
-                const Color = new colors(req.body);
-                Color.save().then((item) => {
-                    res.status(200).send({
-                        message: "Data save into Database",
-                        data: item,
-                        success: true,
-                    });
-                });
-            }})  
+      colors.findOne({ color: color }, (err, result) => {
+        if (result) {
+          res
+            .status(200)
+            .send({ message: "Color ALready exist", success: false });
+        } else {
+          const Color = new colors(req.body);
+          Color.save().then((item) => {
+            res.status(200).send({
+              message: "Data save into Database",
+              data: item,
+              success: true,
+            });
+          });
+        }
+      });
     }
   } catch (err) {
     res.status(400).json({ message: err.message, success: false });
@@ -42,9 +44,9 @@ router.put("/:id", async (req, res) => {
         if (err) {
           res.status(200).send({ message: err.message, success: false });
         } else {
-            if(req.body.color){
+          if (req.body.color) {
             req.body.color = req.body.color.toLowerCase();
-        }
+          }
           colors.updateOne({ _id: id }, req.body, (err, result) => {
             if (err) {
               res.status(200).send({ message: err.message, success: false });

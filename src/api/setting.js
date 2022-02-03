@@ -106,7 +106,7 @@ router.put("/:id", upload.array("file"), async (req, res) => {
 
       setting.findOne({ _id: id }, req.body, (err, result) => {
         if (!result) {
-          res.status(200).send({ message: err.message, success: false });
+          res.status(200).send({ message: "No Data Exist", success: false });
         } else {
           if (req.files.length > 0) {
             if (req.files[0] && result.H_Logo) {
@@ -123,7 +123,6 @@ router.put("/:id", upload.array("file"), async (req, res) => {
             if (err) {
               res.status(200).send({ message: err.message, success: false });
             } else {
-              console.log(result);
               res.status(200).send({
                 message: "Data updated Successfully",
                 success: true,

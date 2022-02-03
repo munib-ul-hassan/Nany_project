@@ -45,20 +45,25 @@ router.put("/:id", upload.array("file"), async (req, res) => {
       res.status(200).send({ message: "id is not specify", success: false });
     } else {
       splashscreen.findOne({ _id: id }, req.body, (err, result) => {
-        if(result.image){
-          fs.unlink(result.image, () => {});}
-        req.body.image = req.files[0].path;
-        splashscreen.updateOne({ _id: id }, req.body, (err, result) => {
-          if (err) {
-            res.status(200).send({ message: err.message, success: false });
-          } else {
-            res.status(200).send({
-              message: "Data updated Successfully",
-              success: true,
-              data: result,
-            });
+        if (!result) {
+          res.status(200).send({ message: "No Data Exist", success: false });
+        } else {
+          if (result.image) {
+            fs.unlink(result.image, () => {});
           }
-        });
+          req.body.image = req.files[0].path;
+          splashscreen.updateOne({ _id: id }, req.body, (err, result) => {
+            if (err) {
+              res.status(200).send({ message: err.message, success: false });
+            } else {
+              res.status(200).send({
+                message: "Data updated Successfully",
+                success: true,
+                data: result,
+              });
+            }
+          });
+        }
       });
     }
   } catch (err) {
@@ -72,8 +77,9 @@ router.delete("/", async (req, res) => {
       res.status(200).send({ message: "id is not specify", success: false });
     } else {
       splashscreen.findOne({ _id: id }, (err, result) => {
-        if(result.image){
-          fs.unlink(result.image, () => {});}
+        if (result.image) {
+          fs.unlink(result.image, () => {});
+        }
         splashscreen.deleteOne({ _id: id }, (err, result) => {
           if (!result) {
             res.status(200).send({ message: err.message, success: false });

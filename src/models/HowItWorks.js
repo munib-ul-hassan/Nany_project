@@ -4,7 +4,6 @@ const Howitworks = mongoose.Schema(
     icon:String,
     heading:String,
     text:String
-    
   },
   { timestamps: true }
 );

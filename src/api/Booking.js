@@ -156,12 +156,10 @@ router.put("/acceptbooking/:id", async (req, res) => {
           if (err) {
             res.status(200).json({ message: err.message, success: false });
           } else {
-            res
-              .status(200)
-              .json({
-                message: "booking accepted Successfully",
-                success: false,
-              });
+            res.status(200).json({
+              message: "booking accepted Successfully",
+              success: false,
+            });
           }
         });
       }
@@ -254,12 +252,10 @@ router.put("/completebooking/:id", verifytoken, async (req, res) => {
             if (err) {
               res.status(200).json({ message: err.message, success: false });
             } else {
-              res
-                .status(200)
-                .json({
-                  message: "booking accepted Successfully",
-                  success: false,
-                });
+              res.status(200).json({
+                message: "booking accepted Successfully",
+                success: false,
+              });
             }
           }
         );

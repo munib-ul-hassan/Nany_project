@@ -18,12 +18,12 @@ const storage = multer.diskStorage({
 });
 var upload = multer({ storage: storage });
 
-router.post("/", upload.single('file'),async (req, res) => {
+router.post("/", upload.single("file"), async (req, res) => {
   try {
     const { question, answer } = req.body;
-if(req.file){
-  req.body.image =req.file.path
-}
+    if (req.file) {
+      req.body.image = req.file.path;
+    }
     if (!(question && answer)) {
       res
         .status(200)
@@ -42,7 +42,7 @@ if(req.file){
     res.status(400).json({ message: err.message, success: false });
   }
 });
-router.put("/:id",upload.array('file'), async (req, res) => {
+router.put("/:id", upload.array("file"), async (req, res) => {
   try {
     const { id } = req.params;
     if (req.file) {
@@ -54,9 +54,9 @@ router.put("/:id",upload.array('file'), async (req, res) => {
     } else {
       faq.findOne({ _id: id }, req.body, (err, result) => {
         if (!result) {
-          res.status(200).send({ message: err.message, success: false });
+          res.status(200).send({ message: "No Data Exist", success: false });
         } else {
-fs.unlink(result.image,()=>{})
+          fs.unlink(result.image, () => {});
           faq.updateOne({ _id: id }, req.body, (err, result) => {
             if (err) {
               res.status(200).send({ message: err.message, success: false });
@@ -68,8 +68,8 @@ fs.unlink(result.image,()=>{})
               });
             }
           });
-      
-        }})
+        }
+      });
     }
   } catch (err) {
     res.status(400).json({ message: err.message, success: false });
@@ -105,8 +105,7 @@ router.delete("/", async (req, res) => {
 });
 router.get("/", async (req, res) => {
   try {
-    if(req.query){
-
+    if (req.query) {
       faq.find(req.query, (err, result) => {
         if (!result) {
           res.status(200).send({ message: err.message, success: false });
@@ -118,18 +117,19 @@ router.get("/", async (req, res) => {
           });
         }
       });
-    }else{
-    faq.find({}, (err, result) => {
-      if (!result) {
-        res.status(200).send({ message: err.message, success: false });
-      } else {
-        res.status(200).send({
-          message: "Data get Successfully",
-          success: true,
-          data: result,
-        });
-      }
-    });}
+    } else {
+      faq.find({}, (err, result) => {
+        if (!result) {
+          res.status(200).send({ message: err.message, success: false });
+        } else {
+          res.status(200).send({
+            message: "Data get Successfully",
+            success: true,
+            data: result,
+          });
+        }
+      });
+    }
   } catch (err) {
     res.status(400).json({ message: err.message, success: false });
   }

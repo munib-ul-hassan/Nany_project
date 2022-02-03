@@ -21,16 +21,16 @@ router.post("/", async (req, res) => {
     } else if (!re.test(order.email)) {
       res.status(422).send({ message: "invlaid Email", success: false });
     } else {
-      let options = { format: "A4" };
-      var count = 0;
-      var invoiceid = 0;
+      var invoiceid = 1;
       Order.find({}, async (err, result) => {
-        if(result[result.length - 1]){
-          invoiceid =  (await result[result.length - 1].invoiceid) > 0 ? result[result.length   - 1].invoiceid + 1
-          : 1;
+        if (result[result.length - 1]) {
+          invoiceid =
+            (await result[result.length - 1].invoiceid) > 0
+              ? result[result.length - 1].invoiceid + 1
+              : 1;
         }
-          var invoiceproduct = [];
-          product.map((item, index) => {
+        var invoiceproduct = [];
+        product.map((item, index) => {
           invoiceproduct[index] = {
             quantity: item.quantity,
             description: item.name,
@@ -78,23 +78,17 @@ router.post("/", async (req, res) => {
         await easyinvoice.createInvoice(data, async function (result) {
           await fs.writeFileSync("invoice.pdf", result.pdf, "base64");
         });
+        order.products = [];
         product.map((item, index) => {
-          product[index] = Object.assign(order, {
+          order.products[index] = {
             product: item._id,
             quantity: item.quantity,
             price: item.price,
             color: item.color,
-            invoiceid: invoiceid,
-          });
-          product[index].status = "Pending";
-          const Booking = new Order(product[index]);
-          Booking.save().then((item) => {
-            if (item) {
-              count = count + 1;
-            } else {
-            }
-          });
+          };
         });
+        req.body.order.invoiceid = invoiceid;
+        order.status = "Pending";
 
         let transporter = nodemailer.createTransport({
           host: "smtp.gmail.com",
@@ -110,9 +104,7 @@ router.post("/", async (req, res) => {
         const mailOption = {
           from: process.env.email,
           to: order.email, // sender address
-
           subject: "Invoice for your order", // Subject line
-
           attachments: [{ filename: "invoice.pdf", path: "./invoice.pdf" }],
         };
 
@@ -120,20 +112,14 @@ router.post("/", async (req, res) => {
           if (err) {
             res.send(err);
           } else {
-            if (count == product.length) {
+            const Booking = new Order(order);
+            Booking.save().then((item) => {
               res.status(200).send({
                 message: "Data save into Database",
+                data: item,
                 success: true,
               });
-            } else {
-              res.status(200).send({
-                message:
-                  product.length -
-                  count +
-                  " orders are saved other was rejected",
-                success: true,
-              });
-            }
+            });
           }
         });
       });
