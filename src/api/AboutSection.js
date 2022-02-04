@@ -58,16 +58,10 @@ router.post("/", upload.array("file"), async (req, res) => {
 });
 router.put("/:id", upload.array("file"), async (req, res) => {
   try {
-    const value = Object.values(req.body);
+    
     const { id } = req.params;
-    var body = {};
-    if (req.files.length > 0) {
-      req.files.map((item, index) => {
-        if (value[index]) {
-          body[value[index]] = item.path;
-        }
-      });
-    }
+    var body = []
+    
     if (!id) {
       res.status(200).send({ message: "id is not specify", success: false });
     } else {
@@ -75,10 +69,21 @@ router.put("/:id", upload.array("file"), async (req, res) => {
         if (!result) {
           res.status(200).send({ message: "No Data Exist", success: false });
         } else {
-          value.map((item, index) => {
-            fs.unlink(result[item], () => {});
-          });
-          about.updateOne({ _id: id }, body, (err, result) => {
+          if (req.files) {
+            const value = Object.values(req.body)[0];
+
+            req.files.map((item, index) => {
+              if (value[index]) {
+                body[value[index]] = item.path;
+              }
+            });
+            value.map((item, index) => {
+              console.log(result[item])
+              fs.unlink(result[item], () => {});
+            });
+            req.body = Object.assign({}, body)
+          }      
+          about.updateOne({ _id: id },req.body , (err, result) => {
             if (err) {
               res.status(200).send({ message: err.message, success: false });
             } else {
