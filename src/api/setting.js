@@ -103,19 +103,18 @@ router.put("/:id", upload.array("file"), async (req, res) => {
           res.status(422).send({ message: "invlaid Email", success: false });
         }
       }
-
+      
       setting.findOne({ _id: id }, req.body, (err, result) => {
         if (!result) {
           res.status(200).send({ message: "No Data Exist", success: false });
         } else {
-          if (req.files.length > 0) {
-            if (req.files[0] && result.H_Logo) {
+          if (req.files) {
+            if (req.files[0]) {
               req.body.H_Logo = req.files[0].path;
               fs.unlink(result.H_Logo, () => {});
             }
-            if (req.files[1] && result.F_Logo) {
+            if (req.files[1]) {
               req.body.F_Logo = req.files[1].path;
-
               fs.unlink(result.F_Logo, () => {});
             }
           }

@@ -25,7 +25,7 @@ router.post("/", upload.array("file"), async (req, res) => {
 
     req.body.image = req.files[0] ? req.files[0].path : "";
 
-    if (!(heading, paragraph, btnLink)) {
+    if (!(heading, paragraph)) {
       res
         .status(200)
         .send({ message: "All input is required", success: false });
@@ -117,7 +117,7 @@ router.get("/", async (req, res) => {
           res.status(200).send({
             message: "Data get Successfully",
             success: true,
-            data: result[0],
+            data: result,
           });
         }
       });
