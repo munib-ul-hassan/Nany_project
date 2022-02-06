@@ -4,7 +4,6 @@ const { setting } = require("../models/Websetting");
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
-
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, "uploads/websetting/");
@@ -23,44 +22,40 @@ var upload = multer({ storage: storage });
 router.post("/", upload.array("file"), async (req, res) => {
   try {
     const {
-      W_name,
-      W_Meta_Description,
-      W_Meta,
-      W_About,
-      fb,
+      website_name,
+
+      facebook,
       linkedin,
       twitter,
       google,
-      ios_app,
-      android_app,
+      ios_url,
+      android_url,
       Address,
-      Phone,
+      mobile,
       Email,
     } = req.body;
+    
     var re = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
     if (!re.test(Email)) {
       res.status(422).send({ message: "invlaid Email", success: false });
     }
 
     if (req.files.length > 0) {
-      req.body.H_Logo = req.files[0] ? req.files[0].path : "";
-      req.body.F_Logo = req.files[1] ? req.files[1].path : "";
+      req.body.header_image = req.files[0] ? req.files[0].path : "";
+      req.body.footer_image = req.files[1] ? req.files[1].path : "";
     }
 
     if (
       !(
-        W_name &&
-        W_Meta_Description &&
-        W_Meta &&
-        W_About &&
-        fb &&
+        website_name &&
+        facebook &&
         linkedin &&
         twitter &&
         google &&
-        ios_app &&
-        android_app &&
+        ios_url &&
+        android_url &&
         Address &&
-        Phone &&
+        mobile &&
         Email
       )
     ) {
@@ -103,19 +98,19 @@ router.put("/:id", upload.array("file"), async (req, res) => {
           res.status(422).send({ message: "invlaid Email", success: false });
         }
       }
-      
+
       setting.findOne({ _id: id }, req.body, (err, result) => {
         if (!result) {
           res.status(200).send({ message: "No Data Exist", success: false });
         } else {
           if (req.files) {
             if (req.files[0]) {
-              req.body.H_Logo = req.files[0].path;
-              fs.unlink(result.H_Logo, () => {});
+              req.body.header_image = req.files[0].path;
+              fs.unlink(result.header_image, () => {});
             }
             if (req.files[1]) {
-              req.body.F_Logo = req.files[1].path;
-              fs.unlink(result.F_Logo, () => {});
+              req.body.footer_image = req.files[1].path;
+              fs.unlink(result.footer_image , () => {});
             }
           }
           setting.updateOne({ _id: id }, req.body, (err, result) => {

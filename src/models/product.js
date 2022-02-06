@@ -17,7 +17,7 @@ const product = mongoose.Schema(
     size: [],
     image: String,
     price: Number,
-    colors: Array,
+    
     minQuantity:Number,
     quantity: Number,
     SKU:String

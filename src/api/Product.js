@@ -27,7 +27,9 @@ router.post("/", upload.array("file"), async (req, res) => {
     if (req.files) {
       req.body.image = req.files[0] ? req.files[0].path : "";
     }
-    req.body.colors = req.body.colors.split(",");
+  //  req.body.color =JSON.stringify(req.body.color)
+  
+    
     if (!(name && category && price)) {
       res
         .status(200)

@@ -58,7 +58,6 @@ const about = require("./src/api/AboutSection");
 const Service = require("./src/api/Service");
 const price = require("./src/api/Pricing");
 const Works = require("./src/api/Howitworks");
-const market = require("./src/api/Employer");
 const faq = require("./src/api/Faq");
 const contact = require("./src/api/Contact");
 const category = require("./src/api/Category");
