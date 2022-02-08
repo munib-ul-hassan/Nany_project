@@ -20,16 +20,14 @@ const storage = multer.diskStorage({
 
 var upload = multer({ storage: storage });
 
-router.post("/", upload.array("file"), async (req, res) => {
+router.post("/", upload.single("file"), async (req, res) => {
   try {
     const { name, category, price, quantity } = req.body;
+    req.body.icon = req.file ? req.file.filename : "";
+    await uploadFile(req.file);
 
-    if (req.files) {
-      req.body.image = req.files[0] ? req.files[0].path : "";
-    }
-  //  req.body.color =JSON.stringify(req.body.color)
-  
-    
+    //  req.body.color =JSON.stringify(req.body.color)
+
     if (!(name && category && price)) {
       res
         .status(200)
@@ -59,6 +57,9 @@ router.put("/:id", upload.array("file"), async (req, res) => {
         if (!result) {
           res.status(200).send({ message: "No Data Exist", success: false });
         } else {
+          result.image ? fs.unlink(result.image, () => {}) : null;
+          req.body.image = req.files[0].filename;
+
           product.updateOne({ _id: id }, req.body, (err, result) => {
             if (err) {
               res.status(200).send({ message: err.message, success: false });
@@ -111,6 +112,7 @@ router.delete("/", async (req, res) => {
 router.get("/", async (req, res) => {
   try {
     if (req.query) {
+      
       product.find(req.query, (err, result) => {
         if (!result) {
           res.status(200).send({ message: err.message, success: false });
@@ -123,9 +125,24 @@ router.get("/", async (req, res) => {
         }
       });
     } else {
+      
+      // product
+      //   .findOne({ _id: "62028dbab9f74a907b3b6215" })
+      //   .populate("color")
+      //   .exec((err, result) => {
+      //     if (!result) {
+      //       res.status(200).send({ message: err.message, success: false });
+      //     } else {
+      //       res.status(200).send({
+      //         message: "Data get Successfully",
+      //         success: true,
+      //         data: result,
+      //       });
+      //     }
+      //   });
       product.find({}, (err, result) => {
         if (!result) {
-          res.status(200).send({ message: err.message, success: false });
+          res.status(200).send({ message: "Data Not Exist", success: false });
         } else {
           res.status(200).send({
             message: "Data get Successfully",

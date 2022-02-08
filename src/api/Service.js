@@ -4,6 +4,7 @@ const service = require("../models/Service");
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
+const { uploadFile } = require("../middleware/s3");
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -19,12 +20,12 @@ const storage = multer.diskStorage({
 
 var upload = multer({ storage: storage });
 
-router.post("/", upload.array("file"), async (req, res) => {
+router.post("/", upload.single("file"), async (req, res) => {
   try {
     const { heading, paragraph } = req.body;
-
-    req.body.image = req.files[0] ? req.files[0].path : "";
-
+    
+    req.body.image = req.file ? req.file.filename : "";
+    await uploadFile(req.file);
     if (!(heading, paragraph)) {
       res
         .status(200)
@@ -43,20 +44,19 @@ router.post("/", upload.array("file"), async (req, res) => {
     res.status(400).json({ message: err.message, success: false });
   }
 });
-router.put("/:id", upload.array("file"), async (req, res) => {
+router.put("/:id", upload.single("file"), async (req, res) => {
   try {
     const { id } = req.params;
-    if (res.files) {
-      req.body.image = req.files[0].path;
-    }
 
     if (!id) {
       res.status(200).send({ message: "id is not specify", success: false });
     } else {
-      service.findOne({ _id: id }, (err, result) => {
+      service.findOne({ _id: id },async (err, result) => {
         if (!result) {
           res.status(200).send({ message: "No Data Exist", success: false });
         } else {
+          req.body.image = req.file ? req.file.filename : "";
+          await uploadFile(req.file);
           service.updateOne({ _id: id }, req.body, (err, result) => {
             if (err) {
               res.status(200).send({ message: err.message, success: false });
@@ -124,7 +124,7 @@ router.get("/", async (req, res) => {
     } else {
       service.find({}, (err, result) => {
         if (!result) {
-          res.status(200).send({ message: err.message, success: false });
+          res.status(200).send({ message: "Data Not Exist", success: false });
         } else {
           res.status(200).send({
             message: "Data get Successfully",

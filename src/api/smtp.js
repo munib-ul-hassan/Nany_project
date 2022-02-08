@@ -5,7 +5,7 @@ const { SMTP } = require("../models/Websetting");
 router.post("/", async (req, res) => {
   try {
     SMTP.find({}, (err, result) => {
-      if (result.length > 0) {
+      if (result) {
         res.status(200).send({
           message: "First delete then add new data",
           success: false,
@@ -101,7 +101,7 @@ router.get("/", async (req, res) => {
     } else {
       SMTP.find({}, (err, result) => {
         if (!result) {
-          res.status(200).send({ message: err.message, success: false });
+          res.status(200).send({ message: "Data Not Exist", success: false });
         } else {
           res.status(200).send({
             message: "Data get Successfully",

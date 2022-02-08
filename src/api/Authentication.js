@@ -5,9 +5,9 @@ const multer = require("multer");
 const path = require("path");
 var bcrypt = require("bcryptjs");
 const nodemailer = require("nodemailer");
-const fs = require("fs");
 
 const { tokengenerate, verifyadmintoken } = require("../middleware/auth");
+const { uploadFile } = require("../middleware/s3");
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -25,14 +25,13 @@ const storage = multer.diskStorage({
 var upload = multer({ storage: storage });
 
 //signup for user
-router.post("/register/user", upload.array("file"), async (req, res) => {
+router.post("/register/user", upload.single("file"), async (req, res) => {
   try {
     const { name, email, password } = req.body;
 
     var re = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
-    if (req.files.length > 0) {
-      req.body.file = req.files[0] ? req.files[0].path : "";
-    }
+    
+
     if (!(name && email && password)) {
       res
         .status(200)
@@ -40,7 +39,8 @@ router.post("/register/user", upload.array("file"), async (req, res) => {
     } else if (!re.test(email)) {
       res.status(422).send({ message: "invlaid Email", success: false });
     } else {
-      authentication.findOne({ email: email }, (err, data) => {
+    
+      authentication.findOne({ email: email }, async (err, data) => {
         if (data) {
           if (data.usertype != 3) {
             res.status(200).send({
@@ -54,6 +54,10 @@ router.post("/register/user", upload.array("file"), async (req, res) => {
             });
           }
         } else {
+          if (req.file) {
+            req.body.image = req.file.filename;
+            await uploadFile(req.file);
+          }
           var salt = bcrypt.genSaltSync(10);
           req.body.password = bcrypt.hashSync(req.body.password, salt);
           req.body.usertype = 3;
@@ -85,9 +89,8 @@ router.post(
       const { name, email, password } = req.body;
 
       var re = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
-      if (req.files.length > 0) {
-        req.body.file = req.files[0] ? req.files[0].path : "";
-      }
+      
+
       if (!(name && email && password)) {
         res
           .status(200)
@@ -95,7 +98,7 @@ router.post(
       } else if (!re.test(email)) {
         res.status(422).send({ message: "invlaid Email", success: false });
       } else {
-        authentication.findOne({ email: email }, (err, data) => {
+        authentication.findOne({ email: email },async (err, data) => {
           if (data) {
             if (data.usertype != 2) {
               res.status(200).send({
@@ -109,6 +112,10 @@ router.post(
               });
             }
           } else {
+            if (req.file) {
+              req.body.image = req.file.filename;
+              await uploadFile(req.file);
+            }
             var salt = bcrypt.genSaltSync(10);
             req.body.password = bcrypt.hashSync(req.body.password, salt);
 
@@ -137,9 +144,8 @@ router.post("/register/admin", upload.array("file"), async (req, res) => {
   try {
     const { name, email, password } = req.body;
     var re = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
-    if (req.files.length > 0) {
-      req.body.file = req.files[0] ? req.files[0].path : "";
-    }
+    
+
     if (!(name && email && password)) {
       res
         .status(200)
@@ -147,7 +153,7 @@ router.post("/register/admin", upload.array("file"), async (req, res) => {
     } else if (!re.test(email)) {
       res.status(422).send({ message: "invlaid Email", success: false });
     } else {
-      authentication.findOne({ email: email }, (err, data) => {
+      authentication.findOne({ email: email }, async (err, data) => {
         if (data) {
           if (data.usertype != 1) {
             res.status(200).send({
@@ -161,6 +167,10 @@ router.post("/register/admin", upload.array("file"), async (req, res) => {
             });
           }
         } else {
+          if (req.file) {
+            req.body.image = req.file.filename;
+            await uploadFile(req.file);
+          }
           var salt = bcrypt.genSaltSync(10);
           req.body.password = bcrypt.hashSync(req.body.password, salt);
 
@@ -204,7 +214,7 @@ router.post("/login", async (req, res) => {
         });
       } else {
         res.status(200).send({
-          data: {},
+          
           message: "Invalid email or password",
           success: false,
         });
@@ -244,8 +254,7 @@ router.post("/otpsend", async (req, res) => {
       });
 
       let info = await transporter.sendMail({
-        from: process.env,
-        email, // sender address
+        from: process.env.email, // sender address
         to: email, // list of receivers
         subject: "OTP verification", // Subject line
         text: "Hello world", // plain text body

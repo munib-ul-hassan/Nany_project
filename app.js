@@ -4,6 +4,8 @@ const mongoose = require("mongoose");
 require("dotenv").config();
 app.use(express.json());
 const AWS = require('aws-sdk');
+const { getFileStream } = require("./src/middleware/s3");
+
 // const ID = process.env.ID;
 // const SECRET = process.env.SECRET;
 
@@ -74,7 +76,12 @@ const customer = require('./src/api/Customer')
 const employer = require('./src/api/Employer')
 //set path
 
-app.use("/uploads", express.static("uploads"));
+app.use("/image/:image", (req,res)=>{
+      //get image
+    const readstream = getFileStream(req.params.image);
+    readstream.pipe(res);
+    
+});
 app.use("/topheader", topheader);
 app.use("/auth", authentication);
 app.use("/banner", banner);

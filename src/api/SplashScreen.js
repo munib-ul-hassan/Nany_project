@@ -4,6 +4,7 @@ const splashscreen = require("../models/SplashScreen");
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
+const { uploadFile } = require("../middleware/s3");
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -22,7 +23,8 @@ var upload = multer({ storage: storage });
 router.post("/", upload.single("file"), async (req, res) => {
   try {
     if (req.file) {
-      req.body.image = req.file.path;
+      req.body.image = req.file ? req.file.filename : "";
+      await uploadFile(req.file);
       const Splashscreen = new splashscreen(req.body);
       Splashscreen.save().then((item) => {
         res.status(200).send({
@@ -38,21 +40,19 @@ router.post("/", upload.single("file"), async (req, res) => {
     res.status(400).json({ message: err.message, success: false });
   }
 });
-router.put("/:id", upload.array("file"), async (req, res) => {
+router.put("/:id", upload.single("file"), async (req, res) => {
   try {
     const { id } = req.params;
     if (!id) {
       res.status(200).send({ message: "id is not specify", success: false });
     } else {
-      splashscreen.findOne({ _id: id }, req.body, (err, result) => {
+      splashscreen.findOne({ _id: id }, req.body, async(err, result) => {
         if (!result) {
           res.status(200).send({ message: "No Data Exist", success: false });
         } else {
-          if (result.image) {
-            fs.unlink(result.image, () => {});
-          }
-          req.body.image = req.files[0].path;
-          splashscreen.updateOne({ _id: id }, req.body, (err, result) => {
+          req.body.image = req.file ? req.file.filename : "";
+      await uploadFile(req.file);
+          splashscreen.updateOne({ _id: id }, req.body,  (err, result) => {
             if (err) {
               res.status(200).send({ message: err.message, success: false });
             } else {

@@ -1,6 +1,5 @@
 const express = require("express");
 const router = express.Router();
-const path = require("path");
 const colors = require("../models/Colors");
 
 router.post("/", async (req, res) => {
@@ -41,8 +40,8 @@ router.put("/:id", async (req, res) => {
       res.status(200).send({ message: "id is not specify", success: false });
     } else {
       colors.findOne({ _id: id }, (err, result) => {
-        if (err) {
-          res.status(200).send({ message: err.message, success: false });
+        if (!result) {
+          res.status(200).send({ message: "Data Not Exist", success: false });
         } else {
           if (req.body.color) {
             req.body.color = req.body.color.toLowerCase();
@@ -84,7 +83,7 @@ router.delete("/", async (req, res) => {
             }
           });
         } else {
-          res.status(200).send({ message: err.message, success: false });
+          res.status(200).send({ message: "Data Not Exist", success: false });
         }
       });
     }
@@ -97,7 +96,7 @@ router.get("/", async (req, res) => {
     if (req.query) {
       colors.find(req.query, (err, result) => {
         if (!result) {
-          res.status(200).send({ message: err.message, success: false });
+          res.status(200).send({ message: "Data Not Exist", success: false });
         } else {
           res.status(200).send({
             message: "Data get Successfully",
@@ -109,7 +108,7 @@ router.get("/", async (req, res) => {
     } else {
       colors.find({}, (err, result) => {
         if (!result) {
-          res.status(200).send({ message: err.message, success: false });
+          res.status(200).send({ message: "Data Not Exist", success: false });
         } else {
           res.status(200).send({
             message: "Data get Successfully",

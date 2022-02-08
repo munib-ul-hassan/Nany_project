@@ -98,7 +98,7 @@ router.get("/", async (req, res) => {
     } else {
       price.find({}, (err, result) => {
         if (!result) {
-          res.status(200).send({ message: err.message, success: false });
+          res.status(200).send({ message: "Data Not Exist", success: false });
         } else {
           res.status(200).send({
             message: "Data get Successfully",

@@ -4,7 +4,7 @@ const about = require("../models/AboutSection");
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
-
+const { uploadFile } = require("../middleware/s3");
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, "uploads/about/");
@@ -19,27 +19,25 @@ const storage = multer.diskStorage({
 
 var upload = multer({ storage: storage });
 
-router.post("/", upload.array("file"), async (req, res) => {
+router.post("/", upload.single("file"), async (req, res) => {
   try {
-    about.findOne({}, (err, result) => {
+    about.findOne({}, async (err, result) => {
       if (result) {
         res
           .status(200)
-          .send({ message: "first delete data then post", success: false });
+          .send({ message: "First delete data then post", success: false });
       } else {
-        const { text, txt1, txt2, txt3, txt4 } = req.body;
-        if (req.files.length > 0) {
-          req.body.video = req.files[0] ? req.files[0].path : "";
-          req.body.img1 = req.files[1] ? req.files[1].path : "";
-          req.body.img2 = req.files[2] ? req.files[2].path : "";
-          req.body.img3 = req.files[3] ? req.files[3].path : "";
-          req.body.img4 = req.files[4] ? req.files[4].path : "";
-        }
-        if (!(text && txt1 && txt2 && txt3 && txt4)) {
+        const { text } = req.body;
+
+        if (!text) {
           res
             .status(200)
             .send({ message: "All input is required", success: false });
         } else {
+          if (req.file) {
+            await uploadFile(req.file);
+            req.body.video = req.file.filename;
+          }
           const About = new about(req.body);
 
           About.save().then((item) => {
@@ -56,34 +54,23 @@ router.post("/", upload.array("file"), async (req, res) => {
     res.status(400).json({ message: err.message, success: false });
   }
 });
-router.put("/:id", upload.array("file"), async (req, res) => {
+router.put("/:id", upload.single("file"), async (req, res) => {
   try {
-    
     const { id } = req.params;
-    var body = []
     
+
     if (!id) {
       res.status(200).send({ message: "id is not specify", success: false });
     } else {
-      about.findOne({ _id: id }, (err, result) => {
+      about.findOne({ _id: id }, async (err, result) => {
         if (!result) {
-          res.status(200).send({ message: "No Data Exist", success: false });
+          res.status(200).send({ message: "Data Not Exist", success: false });
         } else {
-          if (req.files) {
-            const value = Object.values(req.body)[0];
-
-            req.files.map((item, index) => {
-              if (value[index]) {
-                body[value[index]] = item.path;
-              }
-            });
-            value.map((item, index) => {
-              console.log(result[item])
-              fs.unlink(result[item], () => {});
-            });
-            req.body = Object.assign({}, body)
-          }      
-          about.updateOne({ _id: id },req.body , (err, result) => {
+          if (req.file) {
+            await uploadFile(req.file);
+            req.body.video = req.file.filename;
+          }
+          about.updateOne({ _id: id }, req.body, (err, result) => {
             if (err) {
               res.status(200).send({ message: err.message, success: false });
             } else {
@@ -109,21 +96,13 @@ router.delete("/", async (req, res) => {
     } else {
       about.findOne({ _id: id }, (err, result) => {
         if (result) {
-          if (result.video) {
-            fs.unlink(result.video, () => {});
-          }
-          // result.sections.map((item) => {
-          //   if(item.image){
-
-          //     fs.unlink(item.image, () => {});
-          //   }
-          // });
+          
           about.deleteOne({ _id: id }, (err, result) => {
             if (!result) {
               res.status(200).send({ message: err.message, success: false });
             } else {
               res.status(200).send({
-                message: "Data deleted Successfully",
+                message: "Data Deleted Successfully",
                 success: true,
                 data: result,
               });
@@ -140,26 +119,22 @@ router.delete("/", async (req, res) => {
 });
 router.get("/", async (req, res) => {
   try {
-    
     if (req.query) {
-      about.find(
-        req.query,
-        (err, result) => {
-          if (!result) {
-            res.status(200).send({ message: err.message, success: false });
-          } else {
-            res.status(200).send({
-              message: "Data get Successfully",
-              success: true,
-              data: result,
-            });
-          }
+      about.find(req.query, (err, result) => {
+        if (!result) {
+          res.status(200).send({ message: "Data Not Exist", success: false });
+        } else {
+          res.status(200).send({
+            message: "Data get Successfully",
+            success: true,
+            data: result,
+          });
         }
-      );
+      });
     } else {
       about.find({}, (err, result) => {
         if (!result) {
-          res.status(200).send({ message: err.message, success: false });
+          res.status(200).send({ message: "Data Not Exist", success: false });
         } else {
           res.status(200).send({
             message: "Data get Successfully",

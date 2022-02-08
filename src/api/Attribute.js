@@ -71,6 +71,8 @@ router.get("/value", async (req, res) => {
             data: result,
             success: true,
           });
+        }else{
+          res.status(200).send({ message: "Data Not Exist", success: false });
         }
       });
     } else {
@@ -81,6 +83,8 @@ router.get("/value", async (req, res) => {
             data: result,
             success: true,
           });
+        }else{
+          res.status(200).send({ message: "Data Not Exist", success: false });
         }
       });
     }
@@ -94,7 +98,7 @@ router.get("/", async (req, res) => {
     if (req.query) {
       attribute.find(req.query, (err, result) => {
         if (!result) {
-          res.status(200).send({ message: err.message, success: false });
+          res.status(200).send({ message: "Data Not Exist", success: false });
         } else {
           res.status(200).send({
             message: "Data get Successfully",
@@ -106,7 +110,7 @@ router.get("/", async (req, res) => {
     } else {
       attribute.find({}, (err, result) => {
         if (!result) {
-          res.status(200).send({ message: err.message, success: false });
+          res.status(200).send({ message: "Data Not Exist", success: false });
         } else {
           res.status(200).send({
             message: "Data get Successfully",
@@ -141,7 +145,7 @@ router.put("/:id", async (req, res) => {
             }
           });
         } else {
-          res.status(200).send({ message: "Data not exist", success: false });
+          res.status(200).send({ message: "Data Not Exist", success: false });
         }
       });
     }
@@ -169,7 +173,7 @@ router.delete("/", async (req, res) => {
             }
           });
         } else {
-          res.status(200).send({ message: "Data not exist", success: false });
+          res.status(200).send({ message: "Data Not Exist", success: false });
         }
       });
     }
@@ -226,7 +230,7 @@ router.delete("/value", async (req, res) => {
             }
           });
         } else {
-          res.status(200).send({ message: "Data not exist", success: false });
+          res.status(200).send({ message: "Data Not Exist", success: false });
         }
       });
     }

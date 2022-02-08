@@ -1,11 +1,11 @@
 const express = require("express");
 const router = express.Router();
-
 const path = require("path");
 const category = require("../models/Category");
 const fs = require("fs");
 
 const multer = require("multer");
+const { uploadFile } = require("../middleware/s3");
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, "uploads/category/");
@@ -24,14 +24,18 @@ router.post("/", upload.single("file"), async (req, res) => {
   try {
     const { text, heading } = req.body;
 
-    if (req.files) {
-      req.body.image = req.file ? req.file.path : "";
-    }
+    
+    
     if (!(text && heading)) {
       res
         .status(200)
         .send({ message: "All input is required", success: false });
     } else {
+      if (req.file) {
+        await uploadFile(req.file);
+        req.body.image = req.file.filename;
+      }
+  
       const Category = new category(req.body);
       Category.save().then((item) => {
         res.status(200).send({
@@ -45,22 +49,20 @@ router.post("/", upload.single("file"), async (req, res) => {
     res.status(400).json({ message: err.message, success: false });
   }
 });
-router.put("/:id", upload.array("file"), async (req, res) => {
+router.put("/:id", upload.single("file"), async (req, res) => {
   try {
     const { id } = req.params;
 
     if (!id) {
       res.status(200).send({ message: "id is not specify", success: false });
     } else {
-      category.findOne({ _id: id }, (err, result) => {
+      category.findOne({ _id: id }, async (err, result) => {
         if (!result) {
           res.status(200).send({ message: "No Data Exist", success: false });
         } else {
-          if (req.files) {
-            req.body.image = req.files[0] ? req.files[0].path : "";
-            if (result.image) {
-              fs.unlink(result.image, () => {});
-            }
+          if (req.file) {
+            await uploadFile(req.file);
+            req.body.image = req.file.filename;
           }
 
           category.updateOne({ _id: id }, req.body, (err, result) => {
@@ -89,9 +91,7 @@ router.delete("/", async (req, res) => {
     } else {
       category.find({ _id: id }, (err, result) => {
         if (result) {
-          if (result.image) {
-            fs.unlink(result.image, () => {});
-          }
+        
           category.deleteOne({ _id: id }, (err, val) => {
             if (!val) {
               res.status(200).send({ message: err.message, success: false });
@@ -116,7 +116,7 @@ router.get("/", async (req, res) => {
     if (req.query) {
       category.find(req.query, (err, result) => {
         if (!result) {
-          res.status(200).send({ message: err.message, success: false });
+          res.status(200).send({ message: "Data Not Exist", success: false });
         } else {
           res.status(200).send({
             message: "Data get Successfully",
@@ -128,7 +128,7 @@ router.get("/", async (req, res) => {
     } else {
       category.find({}, (err, result) => {
         if (!result) {
-          res.status(200).send({ message: err.message, success: false });
+          res.status(200).send({ message: "Data Not Exist", success: false });
         } else {
           res.status(200).send({
             message: "Data get Successfully",

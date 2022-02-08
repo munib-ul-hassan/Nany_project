@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const booking = require("../models/Booking");
-const { verifyadmintoken, verifytoken } = require("../middleware/auth");
+const {  verifytoken } = require("../middleware/auth");
 
 router.post("/", async (req, res) => {
   try {
@@ -118,7 +118,7 @@ router.get("/", verifytoken, async (req, res) => {
     if (!req.query) {
       booking.find({}, (err, result) => {
         if (!result) {
-          res.status(200).send({ message: err.message, success: false });
+          res.status(200).send({ message: "Data Not Exist", success: false });
         } else {
           res.status(200).send({
             message: "Data get Successfully",
@@ -130,7 +130,7 @@ router.get("/", verifytoken, async (req, res) => {
     } else {
       booking.find(req.query, (err, result) => {
         if (!result) {
-          res.status(200).send({ message: err.message, success: false });
+          res.status(200).send({ message: "Data Not Exist", success: false });
         } else {
           res.status(200).send({
             message: "Data get Successfully",

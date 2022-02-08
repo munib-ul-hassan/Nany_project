@@ -8,7 +8,7 @@ router.post("/", async (req, res) => {
   try {
     const { first_name, last_name, mobile, email, way_to_use, message } =
       req.body;
-    console.log("Query",req.body);
+    
     if (
       !(first_name && last_name && mobile && email && way_to_use && message)
     ) {

@@ -4,6 +4,7 @@ const { employer } = require("../models/Market");
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
+const { uploadFile } = require("../middleware/s3");
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -21,12 +22,11 @@ var upload = multer({ storage: storage });
 
 router.post("/", upload.single("file"), async (req, res) => {
   try {
-    if (req.file) {
-      req.body.image = req.file ? req.file.path : "";
-    }
+    req.body.image = req.file?req.file.filename:"";
+    await uploadFile(req.file);
     employer.find({}, (err, result) => {
       
-      if (result.length > 0) {
+      if (result) {
         res.status(200).send({
           message: "First delete then add new data",
 
@@ -56,14 +56,11 @@ router.put("/:id", upload.single("file"), async (req, res) => {
     if (!id) {
       res.status(200).send({ message: "id is not specify", success: false });
     } else {
-      employer.findOne({ _id: id }, (err, result) => {
+      
+      employer.findOne({ _id: id }, async (err, result) => {
         if (result) {
-          if (req.file) {
-            req.body.image = req.file ? req.file.path : "";
-            if (result.image) {
-              fs.unlink(result.image, () => {});
-            }
-          }
+          req.body.image = req.file?req.file.filename:"";
+          await uploadFile(req.file);
 
           employer.updateOne({ _id: id }, req.body, (err, result) => {
             if (err) {
@@ -136,7 +133,7 @@ router.get("/", async (req, res) => {
     } else {
       employer.find({}, (err, result) => {
         if (!result) {
-          res.status(200).send({ message: err.message, success: false });
+          res.status(200).send({ message: "Data Not Exist", success: false });
         } else {
           res.status(200).send({
             message: "Data get Successfully",

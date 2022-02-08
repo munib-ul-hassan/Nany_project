@@ -33,7 +33,8 @@ router.post("/", upload.single("file"), async (req, res) => {
             .status(200)
             .send({ message: "All input is required", success: false });
         } else {
-          req.body.icon = req.file.path;
+          req.body.icon = req.file ? req.file.filename : "";
+          await uploadFile(req.file);
 
           const hiwork = new HIwork(req.body);
           hiwork.save().then((item) => {
@@ -57,13 +58,13 @@ router.put("/:id", upload.single("file"), async (req, res) => {
     if (!id) {
       res.status(200).send({ message: "id is not specify", success: false });
     } else {
-      HIwork.findOne({ _id: id }, (err, result) => {
+      HIwork.findOne({ _id: id },async  (err, result) => {
         if (!result) {
           res.status(200).send({ message: "Data not Exist", success: false });
         } else {
           if (req.file) {
-            result.icon ? fs.unlink(result.icon, () => {}) : null;
-            req.body.icon = req.file.path;
+            req.body.icon = req.file.filename;
+            await uploadFile(req.file);
           }
           HIwork.updateOne({ _id: id }, req.body, (err, result) => {
             if (err) {
@@ -132,7 +133,7 @@ router.get("/", async (req, res) => {
     } else {
       HIwork.find({}, (err, result) => {
         if (!result) {
-          res.status(200).send({ message: err.message, success: false });
+          res.status(200).send({ message: "Data Not Exist", success: false });
         } else {
           res.status(200).send({
             message: "Data get Successfully",
