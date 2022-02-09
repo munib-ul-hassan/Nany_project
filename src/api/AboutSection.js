@@ -19,7 +19,7 @@ const storage = multer.diskStorage({
 
 var upload = multer({ storage: storage });
 
-router.post("/", upload.single("file"), async (req, res) => {
+router.post("/", upload.array("file"), async (req, res) => {
   try {
     about.findOne({}, async (err, result) => {
       if (result) {
@@ -27,16 +27,25 @@ router.post("/", upload.single("file"), async (req, res) => {
           .status(200)
           .send({ message: "First delete data then post", success: false });
       } else {
-        const { text } = req.body;
+        const { text,txt1,txt2,txt3,txt4 } = req.body;
 
-        if (!text) {
+        if (!(text&&txt1&&txt2&&txt3&&txt4 )) {
           res
             .status(200)
             .send({ message: "All input is required", success: false });
         } else {
-          if (req.file) {
-            await uploadFile(req.file);
-            req.body.video = req.file.filename;
+          if (req.files) {
+
+            req.body.video = req.files[0].filename;
+            await uploadFile(req.files[0]);
+            req.body.img1 = req.files[1].filename;
+            await uploadFile(req.files[1]);
+            req.body.img2 = req.files[2].filename;
+            await uploadFile(req.files[2]);
+            req.body.img2 = req.files[3].filename;
+            await uploadFile(req.files[3]);
+            req.body.img3 = req.files[4].filename;
+            await uploadFile(req.files[4]);
           }
           const About = new about(req.body);
 

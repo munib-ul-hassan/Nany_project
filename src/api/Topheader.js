@@ -36,7 +36,8 @@ router.post("/", upload.single("file"), async (req, res) => {
         .send({ message: "All input is required", success: false });
     } else {
       topheader.find({}, async (err, result) => {
-        if (result) {
+        
+        if (result.length>0) {
           res.status(200).send({
             message: "First Delete data then post",
             success: false,

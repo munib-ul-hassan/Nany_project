@@ -59,11 +59,13 @@ router.put("/:id", upload.array("file"), async (req, res) => {
     if (!id) {
       res.status(200).send({ message: "id is not specify", success: false });
     } else {
+      
       product.findOne({ _id: id }, (err, result) => {
+        
         if (!result) {
           res.status(200).send({ message: "No Data Exist", success: false });
         } else {
-          result.image ? fs.unlink(result.image, () => {}) : null;
+          result.image ? fs.unlink(result.image[0], () => {}) : null;
           req.body.image = req.files[0].filename;
 
           product.updateOne({ _id: id }, req.body, (err, result) => {
