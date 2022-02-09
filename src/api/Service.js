@@ -55,8 +55,9 @@ router.put("/:id", upload.single("file"), async (req, res) => {
         if (!result) {
           res.status(200).send({ message: "No Data Exist", success: false });
         } else {
-          req.body.image = req.file ? req.file.filename : "";
-          await uploadFile(req.file);
+          if(req.file){
+          req.body.image = req.file.filename;
+          await uploadFile(req.file);}
           service.updateOne({ _id: id }, req.body, (err, result) => {
             if (err) {
               res.status(200).send({ message: err.message, success: false });

@@ -42,8 +42,9 @@ router.post("/", upload.single("file"), async (req, res) => {
             success: false,
           });
         } else {
+          if(req.file){
           await uploadFile(req.file);
-          req.body.image = req.file.filename;
+          req.body.image = req.file.filename;}
 
           const web = new topheader(req.body);
           web.save().then((item) => {
