@@ -19,12 +19,18 @@ const storage = multer.diskStorage({
 });
 
 var upload = multer({ storage: storage });
-
-router.post("/", upload.single("file"), async (req, res) => {
+const {uploadFile} = require('../middleware/s3')
+router.post("/", upload.array("file"), async (req, res) => {
   try {
     const { name, category, price, quantity } = req.body;
-    req.body.icon = req.file ? req.file.filename : "";
-    await uploadFile(req.file);
+    console.log(req.files);
+    req.body.image = []
+
+    req.files.map(async (item,index)=>{
+
+      req.body.image[index] = item.filename;
+      await uploadFile(item);
+    })
 
     //  req.body.color =JSON.stringify(req.body.color)
 
