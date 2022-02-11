@@ -140,22 +140,22 @@ router.get("/", async (req, res) => {
   }
 });
 
-// router.get("/byid/:id", (req, res) => {
-//   try {
-//     const { id } = req.params;
-//     service.findOne({ _id: id }, (err, result) => {
-//       if (!result) {
-//         res.status(200).send({ message: err.message, success: false });
-//       } else {
-//         res.status(200).send({
-//           message: "Data get Successfully",
-//           success: true,
-//           data: result,
-//         });
-//       }
-//     });
-//   } catch (err) {
-//     res.status(400).json({ message: err.message, success: false });
-//   }
-// });
+router.get("/byid/:id", (req, res) => {
+  try {
+    const { id } = req.params;
+    service.findOne({ _id: id }, (err, result) => {
+      if (!result) {
+        res.status(200).send({ message: err.message, success: false });
+      } else {
+        res.status(200).send({
+          message: "Data get Successfully",
+          success: true,
+          data: result,
+        });
+      }
+    });
+  } catch (err) {
+    res.status(400).json({ message: err.message, success: false });
+  }
+});
 module.exports = router;
