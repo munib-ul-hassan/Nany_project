@@ -19,20 +19,20 @@ const storage = multer.diskStorage({
 });
 
 var upload = multer({ storage: storage });
-const {uploadFile} = require('../middleware/s3')
+const { uploadFile } = require("../middleware/s3");
 router.post("/", upload.array("file"), async (req, res) => {
   try {
     const { name, category, price, quantity } = req.body;
-    console.log(req.files);
-    req.body.image = []
 
-    req.files.map(async (item,index)=>{
+    req.body.image = [];
 
+    req.files.map(async (item, index) => {
       req.body.image[index] = item.filename;
       await uploadFile(item);
-    })
+    });
 
-    //  req.body.color =JSON.stringify(req.body.color)
+    req.body.color = JSON.parse(req.body.color);
+    req.body.size = JSON.parse(req.body.size);
 
     if (!(name && category && price)) {
       res
@@ -59,14 +59,14 @@ router.put("/:id", upload.array("file"), async (req, res) => {
     if (!id) {
       res.status(200).send({ message: "id is not specify", success: false });
     } else {
-      
       product.findOne({ _id: id }, (err, result) => {
-        
         if (!result) {
           res.status(200).send({ message: "No Data Exist", success: false });
         } else {
-          result.image ? fs.unlink(result.image[0], () => {}) : null;
-          req.body.image = req.files[0].filename;
+          if (req.files) {
+            result.image ? fs.unlink(result.image[0], () => {}) : null;
+            req.body.image = req.files[0].filename;
+          }
 
           product.updateOne({ _id: id }, req.body, (err, result) => {
             if (err) {
@@ -120,7 +120,6 @@ router.delete("/", async (req, res) => {
 router.get("/", async (req, res) => {
   try {
     if (req.query) {
-      
       product.find(req.query, (err, result) => {
         if (!result) {
           res.status(200).send({ message: err.message, success: false });
@@ -133,7 +132,6 @@ router.get("/", async (req, res) => {
         }
       });
     } else {
-      
       // product
       //   .findOne({ _id: "62028dbab9f74a907b3b6215" })
       //   .populate("color")

@@ -8,20 +8,14 @@ const product = mongoose.Schema(
         ref: "category",
       },
     ],
-    color: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "color",
-      },
-    ],
+    color: [],
     size: [],
     image: [],
     price: Number,
-    
-    minQuantity:Number,
+    description: String,
+    minQuantity: Number,
     quantity: Number,
-    SKU:String
-
+    SKU: String,
   },
   { timestamps: true }
 );

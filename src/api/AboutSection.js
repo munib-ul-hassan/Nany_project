@@ -27,15 +27,14 @@ router.post("/", upload.array("file"), async (req, res) => {
           .status(200)
           .send({ message: "First delete data then post", success: false });
       } else {
-        const { text,txt1,txt2,txt3,txt4 } = req.body;
+        const { text, txt1, txt2, txt3, txt4 } = req.body;
 
-        if (!(text&&txt1&&txt2&&txt3&&txt4 )) {
+        if (!(text && txt1 && txt2 && txt3 && txt4)) {
           res
             .status(200)
             .send({ message: "All input is required", success: false });
         } else {
           if (req.files) {
-
             req.body.video = req.files[0].filename;
             await uploadFile(req.files[0]);
             req.body.img1 = req.files[1].filename;
@@ -63,10 +62,9 @@ router.post("/", upload.array("file"), async (req, res) => {
     res.status(400).json({ message: err.message, success: false });
   }
 });
-router.put("/:id", upload.single("file"), async (req, res) => {
+router.put("/:id", upload.array("file"), async (req, res) => {
   try {
     const { id } = req.params;
-    
 
     if (!id) {
       res.status(200).send({ message: "id is not specify", success: false });
@@ -75,11 +73,18 @@ router.put("/:id", upload.single("file"), async (req, res) => {
         if (!result) {
           res.status(200).send({ message: "Data Not Exist", success: false });
         } else {
-          if (req.file) {
-            await uploadFile(req.file);
-            req.body.video = req.file.filename;
+          var value = Object.values(req.body);
+          var body = [];
+          if (req.files.length > 0) {
+            req.files.map(async (item, index) => {
+              if (value[index]) {
+                body[value[index]] = item.filename;
+                await uploadFile(item);
+              }
+            });
           }
-          about.updateOne({ _id: id }, req.body, (err, result) => {
+
+          about.updateOne({ _id: id }, body, (err, result) => {
             if (err) {
               res.status(200).send({ message: err.message, success: false });
             } else {
@@ -105,7 +110,6 @@ router.delete("/", async (req, res) => {
     } else {
       about.findOne({ _id: id }, (err, result) => {
         if (result) {
-          
           about.deleteOne({ _id: id }, (err, result) => {
             if (!result) {
               res.status(200).send({ message: err.message, success: false });

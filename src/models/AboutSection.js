@@ -10,13 +10,7 @@ const about = mongoose.Schema(
     txt1: String,
     txt2: String,
     txt3: String,
-    txt4: String,
-    heading1:String,
-    heading2:String,
-    heading3:String,
-    heading4:String
-
-
+    txt4: String
    },
   { timestamps: true }
 );

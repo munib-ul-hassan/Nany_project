@@ -176,6 +176,7 @@ router.delete("/", async (req, res) => {
 router.get("/", async (req, res) => {
   try {
     if (req.query) {
+      
       Order.find(req.query, (err, result) => {
         if (!result) {
           res.status(200).send({ message: err.message, success: false });
