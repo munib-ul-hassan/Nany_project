@@ -19,12 +19,12 @@ const storage = multer.diskStorage({
 });
 var upload = multer({ storage: storage });
 
-router.post("/", upload.single("file"), async (req, res) => {
+router.post("/", async (req, res) => {
   try {
     const { question, answer } = req.body;
-    req.body.image = req.file ? req.file.filename : "";
-    await uploadFile(req.file);
-    if (!(question && answer)) {
+    // req.body.image = req.file ? req.file.filename : "";
+    // await uploadFile(req.file);
+    if (!(question || answer)) {
       res
         .status(200)
         .send({ message: "All input is required", success: false });
@@ -42,7 +42,7 @@ router.post("/", upload.single("file"), async (req, res) => {
     res.status(400).json({ message: err.message, success: false });
   }
 });
-router.put("/:id", upload.single("file"), async (req, res) => {
+router.put("/:id", async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -53,8 +53,8 @@ router.put("/:id", upload.single("file"), async (req, res) => {
         if (!result) {
           res.status(200).send({ message: "No Data Exist", success: false });
         } else {
-          req.body.image = req.file ? req.file.filename : "";
-          await uploadFile(req.file);
+          // req.body.image = req.file ? req.file.filename : "";
+          // await uploadFile(req.file);
 
           faq.updateOne({ _id: id }, req.body, (err, result) => {
             if (err) {

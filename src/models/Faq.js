@@ -1,7 +1,6 @@
 const mongoose = require("mongoose");
 const Faq = mongoose.Schema(
   {
-    image: String,
     question: String,
     answer: String,
   },
