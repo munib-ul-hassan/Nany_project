@@ -27,24 +27,23 @@ router.post("/", upload.array("file"), async (req, res) => {
           .status(200)
           .send({ message: "First delete data then post", success: false });
       } else {
-        const { text, txt1, txt2, txt3, txt4 } = req.body;
+        const { text, txt1, txt2, txt3, txt4, video } = req.body;
 
-        if (!(text && txt1 && txt2 && txt3 && txt4)) {
+        if (!(text && txt1 && txt2 && txt3 && txt4 && video)) {
           res
             .status(200)
             .send({ message: "All input is required", success: false });
         } else {
           if (req.files) {
-            req.body.video = req.files[0].filename;
+            req.body.img1 = req.files[0].filename;
             await uploadFile(req.files[0]);
-            req.body.img1 = req.files[1].filename;
+            req.body.img2 = req.files[1].filename;
             await uploadFile(req.files[1]);
-            req.body.img2 = req.files[2].filename;
+            req.body.img3 = req.files[2].filename;
             await uploadFile(req.files[2]);
-            req.body.img2 = req.files[3].filename;
+            req.body.img4 = req.files[3].filename;
             await uploadFile(req.files[3]);
-            req.body.img3 = req.files[4].filename;
-            await uploadFile(req.files[4]);
+
           }
           const About = new about(req.body);
 
