@@ -22,19 +22,19 @@ var upload = multer({ storage: storage });
 
 router.post("/", upload.single("file"), async (req, res) => {
   try {
-    req.body.image = req.file?req.file.filename:"";
+    req.body.image = req.file ? req.file.filename : "";
     await uploadFile(req.file);
     employer.find({}, (err, result) => {
-      
-      if (result) {
+
+      if (!result) {
         res.status(200).send({
           message: "First delete then add new data",
 
           success: false,
         });
-        
+
       } else {
-        
+
 
         const Employer = new employer(req.body);
         Employer.save().then((item) => {
@@ -56,10 +56,10 @@ router.put("/:id", upload.single("file"), async (req, res) => {
     if (!id) {
       res.status(200).send({ message: "id is not specify", success: false });
     } else {
-      
+
       employer.findOne({ _id: id }, async (err, result) => {
         if (result) {
-          req.body.image = req.file?req.file.filename:"";
+          req.body.image = req.file ? req.file.filename : "";
           await uploadFile(req.file);
 
           employer.updateOne({ _id: id }, req.body, (err, result) => {
